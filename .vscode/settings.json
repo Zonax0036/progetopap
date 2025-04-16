@@ -1,0 +1,100 @@
+{
+  "eslint.probe": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "html",
+    "markdown",
+    "json",
+    "jsonc",
+    "yaml",
+    "toml"
+  ],
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "cva\\(([^)]*)\\)",
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ],
+    [
+      "cx\\(([^)]*)\\)",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ],
+    [
+      "cn\\(([^)]*)\\)",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ],
+    [
+      "variants:\\s*\\{[^}]*?\\b(\\w+)\\s*:\\s*\\{[^}]*?(?:'|\"|`)([^'\"`]+)(?:'|\"|`)",
+      "g"
+    ]
+  ],
+  "tailwindCSS.rootFontSize": 10,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "eslint.enable": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.addMissingImports": "always"
+  },
+  "eslint.run": "onSave",
+  "eslint.format.enable": true,
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html",
+    "javascript": "javascript",
+    "typescript": "typescript",
+    "javascriptreact": "javascript",
+    "typescriptreact": "typescript"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.experimental.colorDecorators": true,
+  "tailwindCSS.experimental.showPixelEquivalents": true,
+  "tailwindCSS.experimental.showUtilities": {
+    "animation": false,
+    "backgrounds": true,
+    "borders": true,
+    "boxShadow": true,
+    "display": true,
+    "flexbox": true,
+    "fonts": true,
+    "gradients": true,
+    "interactivity": true,
+    "positioning": true,
+    "sizing": true,
+    "spacing": true,
+    "text": true,
+    "transforms": true,
+    "transitions": true
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  }
+}

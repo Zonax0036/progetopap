@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 📦 progetonextjs1
 
-First, run the development server:
+Projeto fullstack utilizando **Next.js**, com autenticação, integração com banco de dados (MongoDB e MySQL), estilização com **Tailwind CSS** e ambiente containerizado com **Docker Compose**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🚀 Tech Stack
+
+**Frontend & Backend:**
+- [Next.js](https://nextjs.org/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [NextAuth.js](https://next-auth.js.org/)
+
+**Estilização:**
+- Tailwind CSS
+
+**Autenticação e Segurança:**
+- next-auth
+- bcrypt / bcryptjs
+
+**Banco de Dados:**
+- MongoDB
+- MySQL (via `mysql2`)
+
+**Ferramentas de Desenvolvimento:**
+- ESLint
+- Prettier
+- React Icons
+
+**Ambiente:**
+- Docker Compose
+- Arquivo `.env` para configuração de variáveis
+
+---
+
+## 📂 Estrutura Principal
+
+```
+progetopap/
+├── context/             # Context API (ex: Carrinho)
+├── pages/               # Rotas da aplicação (Next.js)
+├── public/              # Arquivos estáticos
+├── styles/              # Estilos globais
+├── docker-compose.yml   # Definição dos serviços
+├── .env                 # Variáveis de ambiente
+├── package.json         # Dependências do projeto
+├── next.config.ts       # Configuração personalizada do Next.js
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🐳 Docker Compose
+```bash
+# Iniciar a aplicação (Next.js + MongoDB + MySQL)
+docker-compose up --build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🔐 Variáveis de Ambiente (.env)
 
-To learn more about Next.js, take a look at the following resources:
+Exemplo de variáveis disponíveis no arquivo `.env`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+NEXTAUTH_SECRET=your_secret_here
+MYSQL_HOST=mysql
+MYSQL_USER=root
+MYSQL_PASSWORD=root
+MYSQL_DATABASE=progeto
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> ⚠️ Importante: Certifique-se de definir corretamente as credenciais no ambiente de produção.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Como Rodar Localmente
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Pré-requisitos
+
+- Docker e Docker Compose
+- Node.js 18+
+- pnpm (ou npm/yarn)
+
+### Passo a passo
+
+```bash
+# Clonar o repositório
+git clone <url-do-repo>
+cd progetopap
+
+# Criar o .env baseado no modelo acima
+cp .env.example .env
+
+# Instalar dependências
+pnpm install
+
+# Rodar localmente (modo dev)
+pnpm dev
+```
+
+---
+
+## 📜 Scripts Disponíveis
+
+```bash
+pnpm dev       # Iniciar o servidor de desenvolvimento
+pnpm build     # Gerar build de produção
+pnpm start     # Iniciar servidor de produção
+pnpm lint      # Verificar padrões de código com ESLint
+```
+
+---
+
+## 💡 Melhorias Futuras (Roadmap)
+
+- [ ] 🛒 Tela de checkout com integração a gateway de pagamento (ex: Stripe, Mercado Pago)
+- [ ] 📱 Responsividade completa para mobile e tablet
+- [ ] 🧪 Testes automatizados (unitários e e2e com Playwright)
+- [ ] 🌐 Suporte a múltiplos idiomas (i18n)
+- [ ] ⚙️ Painel administrativo para gerenciamento de produtos/usuários
+- [ ] 📤 Upload de imagens com armazenamento em nuvem (ex: Cloudinary ou Supabase Storage)
+- [ ] 🧾 Geração de faturas PDF
+- [ ] 🔐 Políticas de segurança com controle de roles (admin, user, etc.)
+
+---
+
+## 🤝 Contribuições
+
+Sinta-se à vontade para enviar PRs ou sugestões. Toda contribuição é bem-vinda!
