@@ -1,30 +1,12 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
-
+import { useRef } from 'react';
 import axios from 'axios';
-import { useRequireAdmin } from '@/lib/hooks/useRequiredAdmin';
 import { PainelAdmin } from '@/components/admin/PainelAdmin';
 import { DialogConfirm } from '@/components/ui/DialogConfirm';
 import AdminLayout from '@/components/admin/AdminLayout';
 
-function AdminDashboard() {
-  const { loading, authorized } = useRequireAdmin();
-  const [produtos, setProdutos] = useState([]);
-  const [carregandoProdutos, setCarregandoProdutos] = useState(true);
-
+function AdminDashboard({ produtos }) {
   const dialogRef = useRef(null);
   const produtoAExcluir = useRef(null);
-
-  const carregarProdutos = useCallback(async () => {
-    try {
-      setCarregandoProdutos(true);
-      const response = await axios.get('/api/produtos');
-      setProdutos(response.data);
-    } catch (err) {
-      console.error('Erro ao carregar produtos:', err);
-    } finally {
-      setCarregandoProdutos(false);
-    }
-  }, []);
 
   const excluirProduto = id => {
     produtoAExcluir.current = id;
@@ -39,7 +21,7 @@ function AdminDashboard() {
     try {
       await axios.delete(`/api/produtos/${produtoAExcluir.current}`);
       produtoAExcluir.current = null;
-      carregarProdutos();
+      window.location.reload(); // ou você pode usar useState + setProdutos
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
     } finally {
@@ -47,24 +29,11 @@ function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    if (authorized) {
-      carregarProdutos();
-    }
-  }, [authorized, carregarProdutos]);
-
-  if (loading) {
-    return <p className="p-4 text-gray-600">Verificando permissões...</p>;
-  }
-  if (!authorized) {
-    return null;
-  }
-
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Painel Administrativo</h1>
 
-      <PainelAdmin produtos={produtos} onExcluir={excluirProduto} loading={carregandoProdutos} />
+      <PainelAdmin produtos={produtos} onExcluir={excluirProduto} loading={false} />
 
       <DialogConfirm
         ref={dialogRef}
@@ -79,5 +48,41 @@ function AdminDashboard() {
 AdminDashboard.getLayout = function getLayout(page) {
   return <AdminLayout>{page}</AdminLayout>;
 };
+
+export async function getServerSideProps(context) {
+  const { getSession } = await import('next-auth/react');
+  const session = await getSession(context);
+
+  if (!session || session.user.role !== 'admin') {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos`, {
+      headers: {
+        Cookie: context.req.headers.cookie || '',
+      },
+    });
+    const produtos = await res.json();
+
+    return {
+      props: {
+        produtos,
+      },
+    };
+  } catch (error) {
+    console.error('Erro ao carregar produtos:', error);
+    return {
+      props: {
+        produtos: [],
+      },
+    };
+  }
+}
 
 export default AdminDashboard;

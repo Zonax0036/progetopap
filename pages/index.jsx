@@ -1,13 +1,9 @@
 import { Banner } from '@/components/Banner';
 import { ProductCard } from '@/components/ProductCard';
-
 import { useRouter } from 'next/router';
-import { useProdutos } from '@/lib/hooks/useProducts';
 
-export default function Home() {
-  const { produtos, loading } = useProdutos();
+export default function Home({ produtos, categoria, pesquisa }) {
   const router = useRouter();
-  const { categoria, pesquisa } = router.query;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -28,11 +24,7 @@ export default function Home() {
         )}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500" />
-        </div>
-      ) : produtos.length > 0 ? (
+      {produtos.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {produtos.map(produto => (
             <ProductCard key={produto.id} produto={produto} />
@@ -45,4 +37,29 @@ export default function Home() {
       )}
     </div>
   );
+}
+
+export async function getServerSideProps(context) {
+  const { categoria, pesquisa } = context.query;
+
+  const queryParams = new URLSearchParams();
+  if (categoria) {
+    queryParams.append('categoria', categoria);
+  }
+  if (pesquisa) {
+    queryParams.append('pesquisa', pesquisa);
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos?${queryParams.toString()}`,
+  );
+  const produtos = await res.json();
+
+  return {
+    props: {
+      produtos,
+      categoria: categoria || null,
+      pesquisa: pesquisa || null,
+    },
+  };
 }

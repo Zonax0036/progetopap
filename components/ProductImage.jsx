@@ -1,10 +1,11 @@
 import { useState } from 'react';
 
 export function ProductImage({ src, alt, className }) {
-  const placeholder = `https://via.placeholder.com/300x200?text=Imagem+Indisponível`;
-  const generated = `https://source.unsplash.com/300x200/?${encodeURIComponent(alt)}`;
+  const placeholder = '/products/placeholder.jpg';
 
-  const [imgSrc, setImgSrc] = useState(src || generated);
+  const [imgSrc, setImgSrc] = useState(src || placeholder);
+
+  console.log('img', imgSrc);
 
   return (
     <img
@@ -14,9 +15,7 @@ export function ProductImage({ src, alt, className }) {
       width={300}
       height={200}
       onError={() => {
-        if (imgSrc !== placeholder) {
-          setImgSrc(placeholder);
-        }
+        setImgSrc(placeholder);
       }}
     />
   );
