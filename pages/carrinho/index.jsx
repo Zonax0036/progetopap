@@ -1,7 +1,8 @@
+import { getSession } from 'next-auth/react';
 import { useCarrinho } from '@/context/CarrinhoContext';
 import Link from 'next/link';
 
-export default function CarrinhoPage() {
+export default function CarrinhoPage({ user }) {
   const { carrinho, removerDoCarrinho, atualizarQuantidade, limparCarrinho, calcularTotal } =
     useCarrinho();
 
@@ -10,7 +11,7 @@ export default function CarrinhoPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Seu Carrinho</h1>
+      <h1 className="text-2xl font-bold mb-6">Carrinho de {user?.name || 'Usuário'}</h1>
 
       {carrinho.length === 0 ? (
         <div className="text-gray-600">
@@ -90,4 +91,23 @@ export default function CarrinhoPage() {
       )}
     </div>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      user: session.user,
+    },
+  };
 }

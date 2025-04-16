@@ -1,52 +1,16 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+// pages/produtos/index.jsx
 import { ProductCard } from '@/components/ProductCard';
 
-export default function ProdutosPorCategoria() {
-  const router = useRouter();
-  const { categoria } = router.query;
-
-  const [produtos, setProdutos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
-
-  useEffect(() => {
-    const fetchProdutos = async () => {
-      if (!categoria) {
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/produtos?categoria=${encodeURIComponent(categoria)}`);
-        if (!res.ok) {
-          throw new Error('Erro ao buscar produtos');
-        }
-
-        const data = await res.json();
-        setProdutos(data);
-        setErro('');
-      } catch (err) {
-        setErro(err.message || 'Erro ao carregar produtos');
-        setProdutos([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProdutos();
-  }, [categoria]);
-
+export default function ProdutosPorCategoria({ categoria, produtos, erro }) {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-4">
         {categoria ? `Categoria: ${categoria}` : 'Produtos'}
       </h1>
 
-      {loading && <p>Carregando produtos...</p>}
       {erro && <p className="text-red-500">{erro}</p>}
 
-      {!loading && produtos.length === 0 && !erro && (
+      {!erro && produtos.length === 0 && (
         <p className="text-gray-600">Nenhum produto encontrado para essa categoria.</p>
       )}
 
@@ -57,4 +21,36 @@ export default function ProdutosPorCategoria() {
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps(context) {
+  const { categoria } = context.query;
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos?categoria=${encodeURIComponent(categoria || '')}`,
+    );
+
+    if (!res.ok) {
+      throw new Error('Erro ao buscar produtos');
+    }
+
+    const produtos = await res.json();
+
+    return {
+      props: {
+        produtos,
+        categoria: categoria || null,
+        erro: null,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        produtos: [],
+        categoria: categoria || null,
+        erro: err.message || 'Erro ao carregar produtos',
+      },
+    };
+  }
 }
