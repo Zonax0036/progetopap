@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
-import { authOptions } from './auth/[...nextauth]';
+
 import conectarDB from '@/lib/conectarDB';
+import { authOptions } from '@/lib/auth';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {

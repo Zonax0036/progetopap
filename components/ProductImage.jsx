@@ -5,8 +5,6 @@ export function ProductImage({ src, alt, className }) {
 
   const [imgSrc, setImgSrc] = useState(src || placeholder);
 
-  console.log('img', imgSrc);
-
   return (
     <img
       src={imgSrc}

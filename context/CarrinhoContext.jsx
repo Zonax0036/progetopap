@@ -55,7 +55,9 @@ export function CarrinhoProvider({ children }) {
   };
 
   const adicionarAoCarrinho = produto => {
-    if (redirecionarSeNaoLogado()) return;
+    if (redirecionarSeNaoLogado()) {
+      return;
+    }
 
     setCarrinho(prev => {
       const existente = prev.find(item => item.id === produto.id);
@@ -72,7 +74,9 @@ export function CarrinhoProvider({ children }) {
   };
 
   const atualizarQuantidade = (produtoId, quantidade) => {
-    if (quantidade < 1) return;
+    if (quantidade < 1) {
+      return;
+    }
     setCarrinho(prev => prev.map(item => (item.id === produtoId ? { ...item, quantidade } : item)));
   };
 
@@ -102,6 +106,7 @@ export function CarrinhoProvider({ children }) {
 
 export function useCarrinho() {
   const context = useContext(CarrinhoContext);
+  console.log('CarrinhoContext:', context);
   if (!context) {
     return {
       carrinho: [],
