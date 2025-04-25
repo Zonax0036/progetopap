@@ -47,7 +47,7 @@ export function PainelAdmin({ produtos, onExcluir, loading }) {
               </td>
               <td className="px-6 py-4 whitespace-nowrap flex space-x-2">
                 <Link
-                  href={`/editar?id=${produto.id}`}
+                  href={`/admin/editar?id=${produto.id}`}
                   className="text-blue-600 hover:text-blue-900"
                 >
                   <FaEdit />
