@@ -1,4 +1,5 @@
 import conectarDB from '@/lib/conectarDB';
+import FilterBar from '@/components/FilterBar';
 
 export default async function handler(req, res) {
   const { id } = req.query;

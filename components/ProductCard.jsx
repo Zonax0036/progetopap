@@ -14,7 +14,9 @@ export function ProductCard({ produto }) {
               <ProductImage
                 src={produto.imagem}
                 alt={produto.nome}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain p-2"
+
+
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">

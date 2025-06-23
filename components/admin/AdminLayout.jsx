@@ -1,25 +1,32 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut } from 'next-auth/react';
-import { FaPlus, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
+import { FaPlus, FaSignOutAlt, FaTachometerAlt, FaUsers } from 'react-icons/fa';
 
 export default function AdminLayout({ children }) {
+  // Inicializa o router para acessar informações sobre a rota atual
   const router = useRouter();
 
+  // Define os itens do menu de navegação com seus respectivos ícones
   const menu = [
     { label: 'Painel Admin', href: '/admin', icon: <FaTachometerAlt /> },
     { label: 'Adicionar Produto', href: '/admin/adicionar', icon: <FaPlus /> },
+    { label: 'Gerenciar Usuários', href: '/admin/usuarios', icon: <FaUsers /> },
   ];
 
+  // Função auxiliar para verificar se o link atual está ativo
   const isActive = path => router.pathname === path;
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar fixa com altura total */}
+      {/* Sidebar fixa com altura total - ocupa toda a altura da tela */}
       <aside className="w-64 bg-blue-900 text-white flex flex-col h-full">
+        {/* Cabeçalho da sidebar */}
         <div className="p-4 text-2xl font-bold border-b border-blue-800">Admin</div>
 
+        {/* Navegação principal - com scroll interno se necessário */}
         <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+          {/* Mapeia os itens do menu e cria links para cada um */}
           {menu.map(({ label, href, icon }) => (
             <Link
               href={href}
@@ -33,6 +40,7 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
 
+        {/* Rodapé da sidebar com botão de logout */}
         <div className="px-4 py-3 border-t border-blue-800">
           <button
             onClick={() => signOut()}
@@ -43,7 +51,7 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      {/* Área principal com rolagem vertical */}
+      {/* Área principal de conteúdo com rolagem independente */}
       <main className="flex-1 overflow-auto p-6 bg-gray-100">{children}</main>
     </div>
   );

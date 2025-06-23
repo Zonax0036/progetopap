@@ -1,10 +1,25 @@
 import Link from 'next/link';
 import { FaUser, FaSignOutAlt, FaAngleDown } from 'react-icons/fa';
 import { signOut } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function NavUserMenu({ session }) {
   const [menuAberto, setMenuAberto] = useState(false);
+  const menuRef = useRef(null);
+
+  // Fecha o menu quando clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuAberto(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuRef]);
 
   if (!session) {
     return (
@@ -18,7 +33,7 @@ export default function NavUserMenu({ session }) {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         className="flex items-center p-2 text-gray-700 hover:text-blue-600"
         onClick={() => setMenuAberto(!menuAberto)}
@@ -30,19 +45,19 @@ export default function NavUserMenu({ session }) {
 
       {menuAberto && (
         <div
-          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50"
-          onMouseLeave={() => setMenuAberto(false)}
+          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50"
+          
         >
           <Link href="/perfil" legacyBehavior>
-            <a className="block px-4 py-2 hover:bg-blue-50">Meu Perfil</a>
+            <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Meu Perfil</a>
           </Link>
-          <Link href="/pedidos" legacyBehavior>
-            <a className="block px-4 py-2 hover:bg-blue-50">Meus Pedidos</a>
+          <Link href="/meus-pedidos" legacyBehavior>
+            <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Meus Pedidos</a>
           </Link>
 
           <hr className="my-1" />
           <button
-            onClick={() => signOut()}
+            onClick={() => signOut({ redirect: false, callbackUrl: '/' })}
             className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center"
           >
             <FaSignOutAlt className="mr-2" /> Sair

@@ -18,7 +18,8 @@ export default function Produto({ produto }) {
           <ProductImage
             src={produto.imagem}
             alt={produto.nome}
-            className="w-full h-64 object-cover mb-4"
+            className="w-full h-64 object-contain mb-4 bg-gray-100 rounded"
+
           />
         ) : (
           <div className="w-full h-64 flex items-center justify-center bg-gray-100 mb-4">
