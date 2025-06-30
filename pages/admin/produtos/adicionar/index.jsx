@@ -67,7 +67,7 @@ export default function AdicionarProduto() {
       setErro('');
 
       // Enviar dados para a API
-      await axios.post('/api/produtos/adicionar', {
+      await axios.post('/api/produtos', {
         nome,
         descricao,
         preco: precoNumerico,

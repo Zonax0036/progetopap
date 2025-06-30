@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut } from 'next-auth/react';
-import { FaPlus, FaSignOutAlt, FaTachometerAlt, FaUsers } from 'react-icons/fa';
+import { FaBoxOpen, FaSignOutAlt, FaTachometerAlt, FaUsers } from 'react-icons/fa';
 
 export default function AdminLayout({ children }) {
   // Inicializa o router para acessar informações sobre a rota atual
@@ -10,7 +10,7 @@ export default function AdminLayout({ children }) {
   // Define os itens do menu de navegação com seus respectivos ícones
   const menu = [
     { label: 'Painel Admin', href: '/admin', icon: <FaTachometerAlt /> },
-    { label: 'Adicionar Produto', href: '/admin/adicionar', icon: <FaPlus /> },
+    { label: 'Produtos', href: '/admin/produtos', icon: <FaBoxOpen /> },
     { label: 'Gerenciar Usuários', href: '/admin/usuarios', icon: <FaUsers /> },
   ];
 

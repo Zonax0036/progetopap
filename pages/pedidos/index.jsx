@@ -1,5 +1,6 @@
-// pages/meus-pedidos.jsx
 import { getSession } from 'next-auth/react';
+
+import { formatCurrency } from '../../lib/utils/currency';
 
 export default function MeusPedidos({ pedidos }) {
   return (
@@ -11,10 +12,50 @@ export default function MeusPedidos({ pedidos }) {
       {pedidos.length > 0 && (
         <ul className="space-y-4">
           {pedidos.map(pedido => (
-            <li key={pedido.id} className="border rounded p-4 shadow">
-              <p className="font-semibold">Pedido #{pedido.id}</p>
-              <p>Data: {new Date(pedido.data).toLocaleDateString()}</p>
-              <p>Total: €{pedido.total?.toFixed(2)}</p>
+            <li key={pedido.id} className="border rounded p-4 shadow-md space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-bold">Pedido #{pedido.id}</h2>
+                <span
+                  className={`px-2 py-1 text-sm font-semibold rounded-full ${
+                    pedido.status === 'Entregue'
+                      ? 'bg-green-100 text-green-800'
+                      : pedido.status === 'Cancelado'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
+                  {pedido.status}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Data: {new Date(pedido.data_criacao).toLocaleDateString()}
+              </p>
+
+              <div>
+                <h3 className="font-semibold mb-2">Itens do Pedido:</h3>
+                <ul className="space-y-2">
+                  {pedido.itens.map(item => (
+                    <li
+                      key={item.produto_id}
+                      className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                    >
+                      <div>
+                        <p className="font-medium">{item.nome_produto}</p>
+                        <p className="text-sm text-gray-500">
+                          {item.quantidade} x €{formatCurrency(item.preco_unitario)}
+                        </p>
+                      </div>
+                      <p className="font-semibold">
+                        €{formatCurrency(item.quantidade * item.preco_unitario)}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="text-right font-bold text-lg">
+                <p>Total do Pedido: €{formatCurrency(pedido.total)}</p>
+              </div>
             </li>
           ))}
         </ul>
@@ -36,6 +77,7 @@ export async function getServerSideProps(context) {
   }
 
   try {
+    // eslint-disable-next-line no-undef
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pedidos`, {
       headers: {
         Cookie: context.req.headers.cookie || '',
@@ -48,6 +90,7 @@ export async function getServerSideProps(context) {
 
     const pedidos = await res.json();
 
+    console.log({ pedidos });
     return {
       props: {
         pedidos,

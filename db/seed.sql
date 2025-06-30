@@ -1,17 +1,25 @@
-SET
-    NAMES utf8mb4;
+-- db/seed.sql
+-- Este script popula o banco de dados com dados de exemplo para teste.
 
-SET
-    CHARACTER
-SET
-    utf8mb4;
+SET NAMES 'utf8mb4';
+SET CHARACTER SET utf8mb4;
 
--- 02-seed.sql
-USE loja_desportiva;
+-- Limpar dados existentes para evitar duplicados
+DELETE FROM pedido_itens;
+DELETE FROM pedidos;
+DELETE FROM produtos;
+DELETE FROM categorias;
+DELETE FROM usuarios;
 
-START TRANSACTION;
+-- Resetar auto-incremento
+ALTER TABLE pedido_itens AUTO_INCREMENT = 1;
+ALTER TABLE pedidos AUTO_INCREMENT = 1;
+ALTER TABLE produtos AUTO_INCREMENT = 1;
+ALTER TABLE categorias AUTO_INCREMENT = 1;
+ALTER TABLE usuarios AUTO_INCREMENT = 1;
 
--- Inserir Categorias
+
+-- 1. Inserir Categorias
 INSERT IGNORE INTO `categorias` (`id`, `nome`)
 VALUES
     (1, 'Futebol'),
@@ -23,6 +31,15 @@ VALUES
     (7, 'Sapatilha'),
     (8, 'Camping'),
     (9, 'Esportes Radicais');
+-- 2. Inserir Usuários (incluindo um admin)
+-- A senha para todos os usuários de teste é '1234'.
+-- O valor abaixo é o hash bcrypt correspondente a '1234', simulando o armazenamento seguro.
+INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `role`, `ativo`, `ultimo_login`) VALUES
+(1, 'Admin User', 'admin@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'admin', 1, NOW() - INTERVAL 1 DAY),
+(2, 'Ana Silva', 'ana.silva@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 1, NOW() - INTERVAL 2 DAY),
+(3, 'Bruno Costa', 'bruno.costa@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 1, NOW() - INTERVAL 5 HOUR),
+(4, 'Carla Dias', 'carla.dias@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 0, NOW() - INTERVAL 30 DAY),
+(5, 'David Martins', 'david.martins@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 1, NOW() - INTERVAL 10 MINUTE);
 
 -- Inserir Produtos
 INSERT IGNORE INTO `produtos` (
@@ -379,20 +396,41 @@ VALUES
         9
     );
 
--- Admin padrão
-INSERT IGNORE INTO `usuarios` (`nome`, `email`, `senha`, `role`)
-VALUES
-    (
-        'Admin',
-        'admin@email.com',
-        '$2a$10$WK62iltgCqvVRiBHykHYPsXZH8HeATSiMqz7Xh5KIQUxrsdRqvB',
-        'admin'
-    ),
-    (
-        "Andre Evangelista",
-        "andreluisce@gmail.com",
-        "$2b$10$aWMoUFpexMy5DeKpF1aaCeFjDY853byL/NJ/atbbkcDST70FZK.um",
-        "user"
-    );
+
+-- 4. Inserir Pedidos
+-- Simulando pedidos em diferentes datas e com status variados
+INSERT INTO `pedidos` (`id`, `user_id`, `total`, `status`, `data_criacao`) VALUES
+(1, 2, 205.50, 'enviado', NOW() - INTERVAL 15 DAY),
+(2, 3, 95.00, 'pago', NOW() - INTERVAL 10 DAY),
+(3, 5, 290.00, 'enviado', NOW() - INTERVAL 8 DAY),
+(4, 2, 70.00, 'cancelado', NOW() - INTERVAL 5 DAY),
+(5, 4, 80.00, 'pago', NOW() - INTERVAL 3 DAY),
+(6, 5, 15.00, 'pendente', NOW() - INTERVAL 1 DAY),
+(7, 3, 120.00, 'pago', NOW() - INTERVAL 22 HOUR),
+(8, 2, 250.00, 'pendente', NOW() - INTERVAL 5 HOUR);
+
+-- 5. Inserir Itens do Pedido
+INSERT INTO `pedido_itens` (`pedido_id`, `produto_id`, `nome_produto`, `preco`, `quantidade`, `imagem`) VALUES
+-- Pedido 1
+(1, 1, 'Bola de Futebol Oficial', 120.00, 1, '/products/soccer.avif'),
+(1, 2, 'Camisola de Futebol', 85.50, 1, '/products/placeholder.jpg'),
+-- Pedido 2
+(2, 3, 'Bola de Basquetebol', 95.00, 1, '/products/placeholder.jpg'),
+-- Pedido 3
+(3, 4, 'Sapatilhas de Corrida', 250.00, 1, '/products/placeholder.jpg'),
+(3, 5, 'Calções de Corrida', 40.00, 1, '/products/placeholder.jpg'),
+-- Pedido 4
+(4, 7, 'Fato de Banho', 70.00, 1, '/products/placeholder.jpg'),
+-- Pedido 5
+(5, 8, 'Halteres 5kg (Par)', 55.00, 1, '/products/placeholder.jpg'),
+(5, 9, 'Tapete de Yoga', 25.00, 1, '/products/placeholder.jpg'),
+-- Pedido 6
+(6, 10, 'Garrafa de Água 1L', 15.00, 1, '/products/placeholder.jpg'),
+-- Pedido 7
+(7, 1, 'Bola de Futebol Oficial', 120.00, 1, '/products/soccer.avif'),
+-- Pedido 8
+(8, 4, 'Sapatilhas de Corrida', 250.00, 1, '/products/placeholder.jpg');
 
 COMMIT;
+
+SELECT 'Banco de dados populado com sucesso!' as status;

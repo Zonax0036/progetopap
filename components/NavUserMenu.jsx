@@ -15,9 +15,9 @@ export default function NavUserMenu({ session }) {
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [menuRef]);
 
@@ -44,14 +44,11 @@ export default function NavUserMenu({ session }) {
       </button>
 
       {menuAberto && (
-        <div
-          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50"
-          
-        >
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
           <Link href="/perfil" legacyBehavior>
             <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Meu Perfil</a>
           </Link>
-          <Link href="/meus-pedidos" legacyBehavior>
+          <Link href="/pedidos" legacyBehavior>
             <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Meus Pedidos</a>
           </Link>
 

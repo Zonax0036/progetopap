@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FaEdit, FaTrash, FaUserLock, FaUserCheck, FaSearch } from 'react-icons/fa';
+import Link from 'next/link';
 
-export function GerenciamentoUsuarios({ loading: initialLoading }) {
+export function TabelaUsuarios({ loading: initialLoading }) {
   const [usuarios, setUsuarios] = useState([]);
   const [isLoading, setIsLoading] = useState(initialLoading);
   const [filtro, setFiltro] = useState('');
@@ -10,23 +11,25 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
 
   // Função para buscar os usuários do backend
   const carregarUsuarios = useCallback(async () => {
-    if (tentativas > 3) return; // Evita tentar infinitamente
+    if (tentativas > 3) {
+      return;
+    } // Evita tentar infinitamente
 
     setIsLoading(true);
     setErro('');
     try {
       const response = await fetch('/api/usuarios');
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         let errorData;
         try {
           errorData = JSON.parse(errorText);
-        } catch (e) {
+        } catch {
           console.error('Resposta não é JSON válido:', errorText);
           errorData = { erro: 'Formato de resposta inválido' };
         }
-        
+
         setErro(`Erro (${response.status}): ${errorData?.erro || 'Erro desconhecido'}`);
         console.error('Erro na resposta:', response.status, errorData);
         setUsuarios([]);
@@ -66,8 +69,8 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
       }
 
       // Atualiza a lista de usuários localmente
-      setUsuarios(prev => 
-        prev.map(user => user.id === userId ? { ...user, ativo: !statusAtual } : user)
+      setUsuarios(prev =>
+        prev.map(user => (user.id === userId ? { ...user, ativo: !statusAtual } : user)),
       );
     } catch (error) {
       console.error('Erro ao alterar status do usuário:', error);
@@ -76,11 +79,11 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
   };
 
   // Função para excluir um usuário
-  const excluirUsuario = async (userId) => {
+  const excluirUsuario = async userId => {
     if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/usuarios/${userId}`, {
         method: 'DELETE',
@@ -101,12 +104,13 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
   };
 
   // Filtra os usuários com base na pesquisa
-  const usuariosFiltrados = usuarios.filter(usuario => 
-    usuario.nome?.toLowerCase().includes(filtro.toLowerCase()) ||
-    usuario.email?.toLowerCase().includes(filtro.toLowerCase())
+  const usuariosFiltrados = usuarios.filter(
+    usuario =>
+      usuario.nome?.toLowerCase().includes(filtro.toLowerCase()) ||
+      usuario.email?.toLowerCase().includes(filtro.toLowerCase()),
   );
 
-  // Renderiza o estado de carregamento
+  // Renderiza o distrito de carregamento
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -115,15 +119,18 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
     );
   }
 
-  // Renderiza o estado de erro
+  // Renderiza o distrito de erro
   if (erro) {
     return (
       <div className="bg-red-100 p-4 rounded text-red-700">
         <p className="font-bold text-center">Ocorreu um erro</p>
         <p className="text-center mb-4">{erro}</p>
         <div className="flex justify-center">
-          <button 
-            onClick={() => {setTentativas(0); carregarUsuarios();}}
+          <button
+            onClick={() => {
+              setTentativas(0);
+              carregarUsuarios();
+            }}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
           >
             Tentar novamente
@@ -133,14 +140,17 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
     );
   }
 
-  // Renderiza o estado vazio
+  // Renderiza o distrito vazio
   if (!usuarios || usuarios.length === 0) {
     return (
       <div className="bg-yellow-100 p-4 rounded text-yellow-700 text-center">
         <p>Nenhum usuário encontrado no sistema.</p>
         {tentativas > 0 && (
-          <button 
-            onClick={() => {setTentativas(0); carregarUsuarios();}}
+          <button
+            onClick={() => {
+              setTentativas(0);
+              carregarUsuarios();
+            }}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-4"
           >
             Atualizar
@@ -159,10 +169,10 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
         </div>
         <input
           type="text"
-          placeholder="Buscar por nome ou email..."
+          placeholder="Buscar por nome, email"
           className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
+          onChange={e => setFiltro(e.target.value)}
         />
       </div>
 
@@ -177,7 +187,7 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
                 Email
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Data de Registro
+                Role
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Status
@@ -190,30 +200,37 @@ export function GerenciamentoUsuarios({ loading: initialLoading }) {
           <tbody className="bg-white divide-y divide-gray-200">
             {usuariosFiltrados.map(usuario => (
               <tr key={usuario.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">{usuario.nome || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{usuario.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {usuario.nome || 'N/A'}
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      usuario.role === 'admin'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {usuario.role}
+                  </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {usuario.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {usuario.dataCriacao ? new Date(usuario.dataCriacao).toLocaleDateString('pt-BR') : 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    usuario.ativo 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      usuario.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}
+                  >
                     {usuario.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap flex space-x-2">
+                  <Link href={`/admin/usuarios/editar/${usuario.id}`}>
+                    <FaEdit />
+                  </Link>
                   <button
                     onClick={() => alternarStatus(usuario.id, usuario.ativo)}
                     className={`${
-                      usuario.ativo 
-                        ? 'text-red-600 hover:text-red-900' 
+                      usuario.ativo
+                        ? 'text-red-600 hover:text-red-900'
                         : 'text-green-600 hover:text-green-900'
                     }`}
                     title={usuario.ativo ? 'Desativar usuário' : 'Ativar usuário'}

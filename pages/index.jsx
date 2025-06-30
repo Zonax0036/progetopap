@@ -26,7 +26,7 @@ export default function Home({ produtos, categoria, pesquisa }) {
 
       {produtos.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {produtos.map(produto => (
+          {produtos?.map?.(produto => (
             <ProductCard key={produto.id} produto={produto} />
           ))}
         </div>
@@ -40,25 +40,48 @@ export default function Home({ produtos, categoria, pesquisa }) {
 }
 
 export async function getServerSideProps(context) {
-  const { categoria, pesquisa } = context.query;
+  const { categoria: categoriaId, pesquisa } = context.query;
 
+  // eslint-disable-next-line no-undef
   const queryParams = new URLSearchParams();
-  if (categoria) {
-    queryParams.append('categoria', categoria);
+  if (categoriaId) {
+    queryParams.append('categoria', categoriaId);
   }
   if (pesquisa) {
     queryParams.append('pesquisa', pesquisa);
   }
 
-  const res = await fetch(
+  // Fetch produtos
+  const resProdutos = await fetch(
+    // eslint-disable-next-line no-undef
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos?${queryParams.toString()}`,
   );
-  const produtos = await res.json();
+  const dataProdutos = await resProdutos.json();
+
+  let categoriaNome = null;
+  if (categoriaId) {
+    try {
+      // Fetch all categories to find the name
+      const resCategorias = await fetch(
+        // eslint-disable-next-line no-undef
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/categorias`,
+      );
+      if (resCategorias.ok) {
+        const categorias = await resCategorias.json();
+        const categoriaEncontrada = categorias.find(cat => cat.id === parseInt(categoriaId, 10));
+        if (categoriaEncontrada) {
+          categoriaNome = categoriaEncontrada.nome;
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar nome da categoria:', error);
+    }
+  }
 
   return {
     props: {
-      produtos,
-      categoria: categoria || null,
+      produtos: dataProdutos.produtos || [],
+      categoria: categoriaNome,
       pesquisa: pesquisa || null,
     },
   };

@@ -1,88 +1,68 @@
-import { useRef } from 'react';
-import axios from 'axios';
-import { PainelAdmin } from '@/components/admin/PainelAdmin';
-import { DialogConfirm } from '@/components/ui/DialogConfirm';
-import AdminLayout from '@/components/admin/AdminLayout';
+import { useRequireAdmin } from '@/lib/hooks/useRequiredAdmin';
+import { FaChartBar, FaUsers, FaBoxOpen } from 'react-icons/fa';
+import AdminLayout from '../../components/admin/AdminLayout';
+import Link from 'next/link';
 
-function AdminDashboard({ produtos }) {
-  const dialogRef = useRef(null);
-  const produtoAExcluir = useRef(null);
+export default function AdminDashboard() {
+  const { loading } = useRequireAdmin();
 
-  const excluirProduto = id => {
-    produtoAExcluir.current = id;
-    dialogRef.current?.showModal();
-  };
-
-  const confirmarExclusao = async () => {
-    if (!produtoAExcluir.current) {
-      return;
-    }
-
-    try {
-      await axios.delete(`/api/produtos/${produtoAExcluir.current}`);
-      produtoAExcluir.current = null;
-      window.location.reload(); // ou você pode usar useState + setProdutos
-    } catch (error) {
-      console.error('Erro ao excluir produto:', error);
-    } finally {
-      dialogRef.current.close();
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Painel Administrativo</h1>
+    <>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Painel de Administração</h1>
 
-      <PainelAdmin produtos={produtos} onExcluir={excluirProduto} loading={false} />
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-2xl font-semibold text-gray-700">Bem-vindo ao seu Dashboard!</h2>
+        <p className="text-gray-600 mt-2">
+          Aqui você pode gerenciar os principais aspectos da sua loja. Utilize o menu lateral para
+          navegar entre as seções.
+        </p>
+      </div>
 
-      <DialogConfirm
-        ref={dialogRef}
-        onConfirm={confirmarExclusao}
-        title="Excluir Produto"
-        message="Tem certeza que deseja excluir este produto? Essa ação não poderá ser desfeita."
-      />
-    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link href="/admin/produtos">
+          <div className="bg-white p-6 rounded-lg shadow-md flex items-center cursor-pointer hover:shadow-lg transition-shadow">
+            <FaBoxOpen className="text-4xl text-blue-500 mr-4" />
+            <div>
+              <h3 className="text-xl font-semibold text-gray-700">Gerenciar Produtos</h3>
+              <p className="text-gray-600 mt-1">
+                Adicione, edite ou remova produtos do seu catálogo.
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/admin/usuarios">
+          <div className="bg-white p-6 rounded-lg shadow-md flex items-center cursor-pointer hover:shadow-lg transition-shadow">
+            <FaUsers className="text-4xl text-green-500 mr-4" />
+            <div>
+              <h3 className="text-xl font-semibold text-gray-700">Gerenciar Usuários</h3>
+              <p className="text-gray-600 mt-1">Visualize e administre os usuários cadastrados.</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/admin/relatorios">
+          <div className="bg-white p-6 rounded-lg shadow-md flex items-center cursor-pointer hover:shadow-lg transition-shadow">
+            <FaChartBar className="text-4xl text-purple-500 mr-4" />
+            <div>
+              <h3 className="text-xl font-semibold text-gray-700">Ver Relatórios</h3>
+              <p className="text-gray-600 mt-1">Acesse os dados de vendas e performance da loja.</p>
+            </div>
+          </div>
+        </Link>
+      </div>
+    </>
   );
 }
 
 AdminDashboard.getLayout = function getLayout(page) {
   return <AdminLayout>{page}</AdminLayout>;
 };
-
-export async function getServerSideProps(context) {
-  const { getSession } = await import('next-auth/react');
-  const session = await getSession(context);
-
-  if (!session || session.user.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
-    };
-  }
-
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos`, {
-      headers: {
-        Cookie: context.req.headers.cookie || '',
-      },
-    });
-    const produtos = await res.json();
-
-    return {
-      props: {
-        produtos,
-      },
-    };
-  } catch (error) {
-    console.error('Erro ao carregar produtos:', error);
-    return {
-      props: {
-        produtos: [],
-      },
-    };
-  }
-}
-
-export default AdminDashboard;

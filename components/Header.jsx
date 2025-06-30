@@ -9,28 +9,28 @@ import { useSession } from 'next-auth/react';
 export default function Header({ searchTerm, setSearchTerm, onSearch }) {
   // Obtém informações da sessão do usuário usando next-auth
   const { data: session } = useSession();
-  
-  // Obtém o estado do carrinho
+
+  // Obtém o distrito do carrinho
   const { carrinho, calcularTotalItens } = useCarrinho();
-  
+
   // Estado local para o contador
   const [itemCount, setItemCount] = useState(0);
-  
+
   // Inicializa o contador com base no carrinho atual
   useEffect(() => {
     setItemCount(calcularTotalItens());
   }, [carrinho, calcularTotalItens]);
-  
+
   // Configura um listener para o evento personalizado
   useEffect(() => {
-    const handleCarrinhoAtualizado = (event) => {
+    const handleCarrinhoAtualizado = event => {
       console.log('Evento de carrinho atualizado recebido:', event.detail.totalItens);
       setItemCount(event.detail.totalItens);
     };
-    
+
     // Adiciona o listener
     window.addEventListener('carrinhoAtualizado', handleCarrinhoAtualizado);
-    
+
     // Remove o listener quando o componente é desmontado
     return () => {
       window.removeEventListener('carrinhoAtualizado', handleCarrinhoAtualizado);
@@ -60,7 +60,7 @@ export default function Header({ searchTerm, setSearchTerm, onSearch }) {
               <span className="hidden md:inline ml-1 text-sm">Favoritos</span>
             </a>
           </Link>
-          
+
           {/* Link para o carrinho com contador de itens */}
           <Link href="/carrinho" legacyBehavior>
             <a className="relative flex items-center hover:text-blue-600 text-gray-700">
@@ -68,13 +68,16 @@ export default function Header({ searchTerm, setSearchTerm, onSearch }) {
               <span className="hidden md:inline ml-1 text-sm">Carrinho</span>
               {/* Badge com contador de itens no carrinho */}
               {itemCount > 0 && (
-                <span key={itemCount} className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <span
+                  key={itemCount}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+                >
                   {itemCount}
                 </span>
               )}
             </a>
           </Link>
-          
+
           {/* Componente de menu do usuário */}
           <NavUserMenu session={session} />
         </nav>

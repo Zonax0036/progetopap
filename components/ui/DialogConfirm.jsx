@@ -22,10 +22,10 @@ export const DialogConfirm = forwardRef(
       >
         {/* Título do diálogo */}
         <h2 className="text-lg font-semibold mb-4">{title}</h2>
-        
+
         {/* Mensagem de confirmação */}
         <p className="text-sm text-gray-700 mb-6">{message}</p>
-        
+
         {/* Botões de ação */}
         <div className="flex justify-end gap-2">
           {/* Botão de cancelar - apenas fecha o diálogo */}
@@ -35,7 +35,7 @@ export const DialogConfirm = forwardRef(
           >
             Cancelar
           </button>
-          
+
           {/* Botão de confirmar - fecha o diálogo e executa a callback */}
           <button
             onClick={confirm}

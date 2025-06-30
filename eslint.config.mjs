@@ -31,7 +31,9 @@ export default [
         setInterval: "readonly",
         clearInterval: "readonly",
         fetch: "readonly",
-        localStorage: "readonly"
+        localStorage: "readonly",
+        require: "readonly",
+        module: "readonly"
       },
     },
     plugins: {

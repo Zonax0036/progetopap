@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
@@ -43,7 +43,12 @@ export default function Login() {
     }
 
     // Redirecionar após login
-    router.push(typeof returnUrl === 'string' ? returnUrl : '/');
+    const session = await getSession();
+    if (session?.user?.role === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push(typeof returnUrl === 'string' ? returnUrl : '/');
+    }
   };
 
   return (

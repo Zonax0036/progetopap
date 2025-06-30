@@ -19,7 +19,6 @@ export default function Produto({ produto }) {
             src={produto.imagem}
             alt={produto.nome}
             className="w-full h-64 object-contain mb-4 bg-gray-100 rounded"
-
           />
         ) : (
           <div className="w-full h-64 flex items-center justify-center bg-gray-100 mb-4">
@@ -43,6 +42,7 @@ export default function Produto({ produto }) {
 }
 
 export async function getStaticPaths() {
+  // eslint-disable-next-line no-undef
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos`);
   const produtos = await res.json();
 
@@ -58,6 +58,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   try {
+    // eslint-disable-next-line no-undef
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos/${params.id}`);
     if (!res.ok) {
       throw new Error('Produto não encontrado');

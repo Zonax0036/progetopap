@@ -1,7 +1,7 @@
 
 # 📦 progetonextjs1
 
-Projeto fullstack utilizando **Next.js**, com autenticação, integração com banco de dados (MongoDB e MySQL), estilização com **Tailwind CSS** e ambiente containerizado com **Docker Compose**.
+Projeto fullstack utilizando **Next.js**, com autenticação, integração com banco de dados ( MySQL), estilização com **Tailwind CSS** e ambiente containerizado com **Docker Compose**.
 
 ---
 
@@ -21,7 +21,6 @@ Projeto fullstack utilizando **Next.js**, com autenticação, integração com b
 - bcrypt / bcryptjs
 
 **Banco de Dados:**
-- MongoDB
 - MySQL (via `mysql2`)
 
 **Ferramentas de Desenvolvimento:**
@@ -68,7 +67,7 @@ NEXTAUTH_SECRET=your_secret_here
 MYSQL_HOST=mysql
 MYSQL_USER=root
 MYSQL_PASSWORD=root
-MYSQL_DATABASE=progeto
+MYSQL_DATABASE=projeto
 ```
 
 > ⚠️ Importante: Certifique-se de definir corretamente as credenciais no ambiente de produção.
@@ -115,7 +114,7 @@ pnpm lint      # Verificar padrões de código com ESLint
 
 ## 💡 Melhorias Futuras (Roadmap)
 
-- [ ] 🛒 Tela de checkout com integração a gateway de pagamento (ex: Stripe, Mercado Pago)
+- [ ] 🛒 Ecrã de checkout com integração a gateway de pagamento
 - [ ] 📱 Responsividade completa para mobile e tablet
 - [ ] 🧪 Testes automatizados (unitários e e2e com Playwright)
 - [ ] 🌐 Suporte a múltiplos idiomas (i18n)
@@ -123,9 +122,3 @@ pnpm lint      # Verificar padrões de código com ESLint
 - [ ] 📤 Upload de imagens com armazenamento em nuvem (ex: Cloudinary ou Supabase Storage)
 - [ ] 🧾 Geração de faturas PDF
 - [ ] 🔐 Políticas de segurança com controle de roles (admin, user, etc.)
-
----
-
-## 🤝 Contribuições
-
-Sinta-se à vontade para enviar PRs ou sugestões. Toda contribuição é bem-vinda!

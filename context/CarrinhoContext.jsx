@@ -7,11 +7,11 @@ const CarrinhoContext = createContext();
 const STORAGE_KEY = 'carrinho';
 
 // Função para emitir evento de atualização do carrinho
-const emitirEventoCarrinhoAtualizado = (carrinho) => {
+const emitirEventoCarrinhoAtualizado = carrinho => {
   if (typeof window !== 'undefined') {
     const totalItens = carrinho.reduce((total, item) => total + (item.quantidade || 1), 0);
-    const evento = new CustomEvent('carrinhoAtualizado', { 
-      detail: { totalItens } 
+    const evento = new CustomEvent('carrinhoAtualizado', {
+      detail: { totalItens },
     });
     window.dispatchEvent(evento);
   }
@@ -19,8 +19,10 @@ const emitirEventoCarrinhoAtualizado = (carrinho) => {
 
 // Componente de notificação para feedback visual
 function Notificacao({ mensagem, visivel }) {
-  if (!visivel) return null;
-  
+  if (!visivel) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50">
       {mensagem}
@@ -61,10 +63,9 @@ export function CarrinhoProvider({ children }) {
         } else {
           localStorage.removeItem(STORAGE_KEY);
         }
-        
+
         // Emite evento sempre que o carrinho mudar
         emitirEventoCarrinhoAtualizado(carrinho);
-        
       } catch (err) {
         console.error('Erro ao salvar carrinho:', err);
       }
@@ -79,47 +80,48 @@ export function CarrinhoProvider({ children }) {
     return false;
   }, [session, router]);
 
-  const adicionarAoCarrinho = useCallback((produto) => {
-    if (redirecionarSeNaoLogado()) {
-      return;
-    }
+  const adicionarAoCarrinho = useCallback(
+    produto => {
+      if (redirecionarSeNaoLogado()) {
+        return;
+      }
 
-    setCarrinho(prevCarrinho => {
-      const existente = prevCarrinho.find(item => item.id === produto.id);
-      
-      const novoCarrinho = existente
-        ? prevCarrinho.map(item =>
-            item.id === produto.id 
-              ? { ...item, quantidade: item.quantidade + 1 } 
-              : item
-          )
-        : [...prevCarrinho, { ...produto, quantidade: 1 }];
-      
-      // Exibe notificação
-      setNotificacao({
-        visivel: true,
-        mensagem: `${produto.nome} adicionado ao carrinho!`
+      setCarrinho(prevCarrinho => {
+        const existente = prevCarrinho.find(item => item.id === produto.id);
+
+        const novoCarrinho = existente
+          ? prevCarrinho.map(item =>
+              item.id === produto.id ? { ...item, quantidade: item.quantidade + 1 } : item,
+            )
+          : [...prevCarrinho, { ...produto, quantidade: 1 }];
+
+        // Exibe notificação
+        setNotificacao({
+          visivel: true,
+          mensagem: `${produto.nome} adicionado ao carrinho!`,
+        });
+
+        setTimeout(() => {
+          setNotificacao({ visivel: false, mensagem: '' });
+        }, 3000);
+
+        return novoCarrinho;
       });
-      
-      setTimeout(() => {
-        setNotificacao({ visivel: false, mensagem: '' });
-      }, 3000);
-      
-      return novoCarrinho;
-    });
-  }, [redirecionarSeNaoLogado]);
+    },
+    [redirecionarSeNaoLogado],
+  );
 
-  const removerDoCarrinho = useCallback((produtoId) => {
+  const removerDoCarrinho = useCallback(produtoId => {
     setCarrinho(prevCarrinho => prevCarrinho.filter(item => item.id !== produtoId));
   }, []);
 
   const atualizarQuantidade = useCallback((produtoId, quantidade) => {
-    if (quantidade < 1) return;
-    
-    setCarrinho(prevCarrinho => 
-      prevCarrinho.map(item => 
-        item.id === produtoId ? { ...item, quantidade } : item
-      )
+    if (quantidade < 1) {
+      return;
+    }
+
+    setCarrinho(prevCarrinho =>
+      prevCarrinho.map(item => (item.id === produtoId ? { ...item, quantidade } : item)),
     );
   }, []);
 
@@ -128,14 +130,14 @@ export function CarrinhoProvider({ children }) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  const calcularTotal = useCallback(() => 
-    carrinho.reduce((total, item) => total + item.preco * item.quantidade, 0),
-    [carrinho]
+  const calcularTotal = useCallback(
+    () => carrinho.reduce((total, item) => total + item.preco * item.quantidade, 0),
+    [carrinho],
   );
 
-  const calcularTotalItens = useCallback(() => 
-    carrinho.reduce((total, item) => total + (item.quantidade || 1), 0),
-    [carrinho]
+  const calcularTotalItens = useCallback(
+    () => carrinho.reduce((total, item) => total + (item.quantidade || 1), 0),
+    [carrinho],
   );
 
   const value = {
@@ -145,23 +147,20 @@ export function CarrinhoProvider({ children }) {
     atualizarQuantidade,
     limparCarrinho,
     calcularTotal,
-    calcularTotalItens
+    calcularTotalItens,
   };
 
   return (
     <CarrinhoContext.Provider value={value}>
       {children}
-      <Notificacao 
-        visivel={notificacao.visivel} 
-        mensagem={notificacao.mensagem} 
-      />
+      <Notificacao visivel={notificacao.visivel} mensagem={notificacao.mensagem} />
     </CarrinhoContext.Provider>
   );
 }
 
 export function useCarrinho() {
   const context = useContext(CarrinhoContext);
-  
+
   if (!context) {
     return {
       carrinho: [],

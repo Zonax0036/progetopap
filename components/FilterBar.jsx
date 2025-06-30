@@ -29,18 +29,27 @@ export default function FilterBar() {
   // Aplica os filtros selecionados atualizando a URL
   const aplicarFiltros = () => {
     const query = { ...router.query };
-    
+
     // Adiciona ou remove filtros de preço baseado nos valores
-    if (precoRange.min) query.min = precoRange.min;
-    else delete query.min;
-    
-    if (precoRange.max) query.max = precoRange.max;
-    else delete query.max;
-    
+    if (precoRange.min) {
+      query.min = precoRange.min;
+    } else {
+      delete query.min;
+    }
+
+    if (precoRange.max) {
+      query.max = precoRange.max;
+    } else {
+      delete query.max;
+    }
+
     // Adiciona ou remove ordenação
-    if (ordenacaoAtual !== 'padrao') query.ordenacao = ordenacaoAtual;
-    else delete query.ordenacao;
-    
+    if (ordenacaoAtual !== 'padrao') {
+      query.ordenacao = ordenacaoAtual;
+    } else {
+      delete query.ordenacao;
+    }
+
     // Navega para a mesma página com os novos parâmetros de consulta
     router.push({
       pathname: router.pathname,
@@ -51,11 +60,15 @@ export default function FilterBar() {
   // Limpa todos os filtros mantendo apenas categoria e pesquisa
   const limparFiltros = () => {
     const query = {};
-    
+
     // Preserva categoria e pesquisa se existirem
-    if (categoria) query.categoria = categoria;
-    if (pesquisa) query.pesquisa = pesquisa;
-    
+    if (categoria) {
+      query.categoria = categoria;
+    }
+    if (pesquisa) {
+      query.pesquisa = pesquisa;
+    }
+
     router.push({
       pathname: router.pathname,
       query,
@@ -71,7 +84,7 @@ export default function FilterBar() {
         </h2>
         {/* Mostra botão de limpar apenas se houver filtros ativos */}
         {(min || max || ordenacao) && (
-          <button 
+          <button
             onClick={limparFiltros}
             className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
           >
@@ -79,41 +92,37 @@ export default function FilterBar() {
           </button>
         )}
       </div>
-      
+
       {/* Grid de controles de filtro */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Filtro de preço mínimo */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Preço mínimo (€)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Preço mínimo (€)</label>
           <input
             type="number"
             min="0"
             value={precoRange.min}
-            onChange={(e) => setPrecoRange({ ...precoRange, min: e.target.value })}
+            onChange={e => setPrecoRange({ ...precoRange, min: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Mín"
           />
         </div>
-        
+
         {/* Filtro de preço máximo */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Preço máximo (€)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Preço máximo (€)</label>
           <input
             type="number"
             min="0"
             value={precoRange.max}
-            onChange={(e) => setPrecoRange({ ...precoRange, max: e.target.value })}
+            onChange={e => setPrecoRange({ ...precoRange, max: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Máx"
           />
         </div>
-        
+
         {/* NOTA: Há código misturado aqui que parece ser de outro componente */}
-        
+
         {/* Seletor de ordenação */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
@@ -121,7 +130,7 @@ export default function FilterBar() {
           </label>
           <select
             value={ordenacaoAtual}
-            onChange={(e) => setOrdenacaoAtual(e.target.value)}
+            onChange={e => setOrdenacaoAtual(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="padrao">Relevância</option>
@@ -132,7 +141,7 @@ export default function FilterBar() {
           </select>
         </div>
       </div>
-      
+
       {/* Botão para aplicar os filtros */}
       <div className="mt-4 flex justify-end">
         <button

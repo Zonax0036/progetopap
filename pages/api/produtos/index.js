@@ -1,22 +1,11 @@
-// pages/api/produtos.js
-import { Banner } from '@/components/Banner'; // Ajuste conforme necessário
-import { ProductCard } from '@/components/ProductCard'; // Ajuste conforme necessário
-import FilterBar from '@/components/FilterBar'; // Adicione esta importação
-import { useRouter } from 'next/router';
-import conectarDB from '@/lib/conectarDB';
+import { pool } from '@/lib/conectarDB';
+import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
 
-export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Método não permitido.' });
-  }
-
-  const { categoria, pesquisa, min, max, ordenacao } = req.query;
-
-  let connection;
+async function handleGet(req, res) {
+  const { categoria, pesquisa, min, max, ordenacao, pagina = 1, limite = 10 } = req.query;
 
   try {
-    connection = await conectarDB();
-
     let query = `
       SELECT
         produtos.id,
@@ -24,6 +13,7 @@ export default async function handler(req, res) {
         produtos.descricao,
         produtos.preco,
         produtos.imagem,
+        produtos.data_criacao,
         categorias.nome AS categoria
       FROM produtos
       JOIN categorias ON produtos.categoria_id = categorias.id
@@ -34,8 +24,8 @@ export default async function handler(req, res) {
 
     // Filtro por categoria
     if (categoria) {
-      conditions.push('categorias.nome = ?');
-      params.push(categoria);
+      conditions.push('produtos.categoria_id = ?');
+      params.push(parseInt(categoria, 10));
     }
 
     // Filtro por pesquisa
@@ -78,15 +68,60 @@ export default async function handler(req, res) {
         query += ' ORDER BY produtos.id DESC'; // Ordenação padrão
     }
 
-    const [rows] = await connection.execute(query, params);
+    const offset = (pagina - 1) * limite;
+    const limitClause = ` LIMIT ${parseInt(limite)} OFFSET ${parseInt(offset)}`;
 
-    res.status(200).json(rows);
+    // Contar o total de produtos para a paginação
+    const countQuery =
+      `SELECT COUNT(*) as total FROM produtos JOIN categorias ON produtos.categoria_id = categorias.id` +
+      (conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '');
+    const [totalRows] = await pool.execute(countQuery, params);
+    const total = totalRows[0].total;
+
+    const [rows] = await pool.execute(query + limitClause, params);
+
+    res.status(200).json({ produtos: rows, total });
   } catch (error) {
     console.error('Erro ao buscar produtos:', error);
     res.status(500).json({ error: 'Erro ao buscar produtos.' });
-  } finally {
-    if (connection) {
-      await connection.end();
-    }
+  }
+}
+
+async function handlePost(req, res) {
+  const session = await getServerSession(req, res, authOptions);
+
+  if (!session) {
+    return res.status(401).json({ erro: 'Não autenticado' });
+  }
+
+  const { nome, descricao = '', preco, imagem = '', categoria } = req.body;
+
+  // Validação básica
+  if (!nome || !preco || !categoria) {
+    return res.status(400).json({ erro: 'Campos obrigatórios não preenchidos' });
+  }
+
+  try {
+    const query = `
+      INSERT INTO produtos (nome, descricao, preco, imagem, categoria_id)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    await pool.execute(query, [nome, descricao, preco, imagem, categoria]);
+
+    return res.status(200).json({ mensagem: 'Produto adicionado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao adicionar produto:', error);
+    return res.status(500).json({ erro: 'Erro no servidor' });
+  }
+}
+
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    return handleGet(req, res);
+  } else if (req.method === 'POST') {
+    return handlePost(req, res);
+  } else {
+    return res.status(405).json({ error: 'Método não permitido.' });
   }
 }
