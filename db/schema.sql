@@ -117,3 +117,17 @@ CREATE TABLE IF NOT EXISTS `pedido_itens` (
   KEY `pedido_id` (`pedido_id`),
   CONSTRAINT `fk_pedido_item` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela de Favoritos
+CREATE TABLE IF NOT EXISTS `favoritos` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `produto_id` INT(11) NOT NULL,
+  `data_criacao` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_product_unique` (`user_id`, `produto_id`),
+  KEY `user_id` (`user_id`),
+  KEY `produto_id` (`produto_id`),
+  CONSTRAINT `fk_favoritos_usuario` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_favoritos_produto` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
