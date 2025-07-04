@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut } from 'next-auth/react';
-import { FaBoxOpen, FaSignOutAlt, FaTachometerAlt, FaUsers } from 'react-icons/fa';
+import { FaBoxOpen, FaSignOutAlt, FaTachometerAlt, FaUsers, FaTicketAlt } from 'react-icons/fa';
 
 export default function AdminLayout({ children }) {
   // Inicializa o router para acessar informações sobre a rota atual
@@ -12,6 +12,7 @@ export default function AdminLayout({ children }) {
     { label: 'Painel Admin', href: '/admin', icon: <FaTachometerAlt /> },
     { label: 'Produtos', href: '/admin/produtos', icon: <FaBoxOpen /> },
     { label: 'Gerenciar Usuários', href: '/admin/usuarios', icon: <FaUsers /> },
+    { label: 'Cupons', href: '/admin/cupons', icon: <FaTicketAlt /> },
   ];
 
   // Função auxiliar para verificar se o link atual está ativo

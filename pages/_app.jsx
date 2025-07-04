@@ -6,6 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import '@/styles/globals.css';
 import { CarrinhoProvider } from '@/context/CarrinhoContext';
 import { FavoritosProvider } from '@/context/FavoritosContext';
+import { Toaster } from 'sonner';
 
 function LayoutWrapper({ Component, pageProps }) {
   const { data: session, status } = useSession();
@@ -39,6 +40,7 @@ export default function MyApp({ Component, pageProps }) {
       <CarrinhoProvider>
         <FavoritosProvider>
           <LayoutWrapper Component={Component} pageProps={pageProps} />
+          <Toaster richColors />
         </FavoritosProvider>
       </CarrinhoProvider>
     </SessionProvider>
