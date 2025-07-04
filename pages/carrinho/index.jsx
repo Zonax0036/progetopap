@@ -3,6 +3,10 @@ import { getSession } from 'next-auth/react';
 import { useCarrinho } from '@/context/CarrinhoContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Carregar a chave pública do Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 // Componente para o modal de adicionar endereço
 function EnderecoModal({ onClose, onEnderecoAdicionado }) {
@@ -152,7 +156,7 @@ export default function CarrinhoPage({ user }) {
   const [modalEnderecoAberto, setModalEnderecoAberto] = useState(false);
 
   // Estado do Pagamento
-  const [metodoPagamento, setMetodoPagamento] = useState('');
+  const [metodoPagamento, setMetodoPagamento] = useState('Cartão de Crédito');
 
   // Efeitos
   useEffect(() => {
@@ -219,7 +223,7 @@ export default function CarrinhoPage({ user }) {
       setMensagem({ texto: 'Seu carrinho está vazio.', tipo: 'erro' });
       return;
     }
-    if (!enderecoSelecionadoId) {
+    if (opcaoEntrega !== 'retirada' && !enderecoSelecionadoId) {
       setMensagem({ texto: 'Por favor, selecione um endereço de entrega.', tipo: 'erro' });
       return;
     }
@@ -233,7 +237,7 @@ export default function CarrinhoPage({ user }) {
 
     const dadosPedido = {
       carrinho,
-      enderecoId: enderecoSelecionadoId,
+      enderecoId: opcaoEntrega === 'retirada' ? null : enderecoSelecionadoId,
       cupom: cupomAplicado,
       subtotal,
       valorDesconto,
@@ -243,21 +247,41 @@ export default function CarrinhoPage({ user }) {
     };
 
     try {
-      const response = await fetch('/api/pedidos', {
+      // 1. Criar o pedido no nosso sistema com status 'Processando'
+      const resPedido = await fetch('/api/pedidos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dadosPedido),
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao finalizar a compra');
-      }
 
-      setMensagem({ texto: 'Compra finalizada com sucesso! Redirecionando...', tipo: 'sucesso' });
-      limparCarrinho();
-      setTimeout(() => {
-        window.location.href = '/pedidos'; // Redireciona para a página de pedidos
-      }, 2000);
+      const dataPedido = await resPedido.json();
+      if (!resPedido.ok) {
+        throw new Error(dataPedido.error || 'Erro ao criar o pedido.');
+      }
+      const { pedidoId } = dataPedido;
+
+      // 2. Se o pagamento for com Cartão de Crédito, redirecionar para o Stripe
+      if (metodoPagamento === 'Cartão de Crédito') {
+        const resCheckout = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ items: carrinho, pedidoId }), // Envia o pedidoId
+        });
+
+        const { sessionId, error } = await resCheckout.json();
+        if (error) {
+          throw new Error(error);
+        }
+
+        const stripe = await stripePromise;
+        const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
+        if (stripeError) {
+          throw new Error(stripeError.message);
+        }
+        // O redirecionamento acontece aqui. O código abaixo não será executado.
+      }
     } catch (error) {
       setMensagem({ texto: error.message, tipo: 'erro' });
     } finally {
@@ -449,12 +473,7 @@ export default function CarrinhoPage({ user }) {
                       onChange={e => setMetodoPagamento(e.target.value)}
                       className="w-full p-2 border rounded"
                     >
-                      <option value="" disabled>
-                        Selecione o pagamento
-                      </option>
                       <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
-                      <option value="Transferência Bancária">💶 Transferência Bancária</option>
-                      <option value="Multibanco">🏧 Multibanco</option>
                     </select>
                   </div>
 

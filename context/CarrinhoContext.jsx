@@ -17,22 +17,10 @@ const emitirEventoCarrinhoAtualizado = carrinho => {
   }
 };
 
-// Componente de notificação para feedback visual
-function Notificacao({ mensagem, visivel }) {
-  if (!visivel) {
-    return null;
-  }
-
-  return (
-    <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50">
-      {mensagem}
-    </div>
-  );
-}
+import { toast } from 'sonner';
 
 export function CarrinhoProvider({ children }) {
   const [carrinho, setCarrinho] = useState([]);
-  const [notificacao, setNotificacao] = useState({ visivel: false, mensagem: '' });
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -97,15 +85,7 @@ export function CarrinhoProvider({ children }) {
             )
           : [...prevCarrinho, { ...produto, quantidade: produto.quantidade || 1 }];
 
-        // Exibe notificação
-        setNotificacao({
-          visivel: true,
-          mensagem: `${produto.nome} adicionado ao carrinho!`,
-        });
-
-        setTimeout(() => {
-          setNotificacao({ visivel: false, mensagem: '' });
-        }, 3000);
+        toast.success(`${produto.nome} adicionado ao carrinho!`);
 
         return novoCarrinho;
       });
@@ -152,12 +132,7 @@ export function CarrinhoProvider({ children }) {
     calcularTotalItens,
   };
 
-  return (
-    <CarrinhoContext.Provider value={value}>
-      {children}
-      <Notificacao visivel={notificacao.visivel} mensagem={notificacao.mensagem} />
-    </CarrinhoContext.Provider>
-  );
+  return <CarrinhoContext.Provider value={value}>{children}</CarrinhoContext.Provider>;
 }
 
 export function useCarrinho() {

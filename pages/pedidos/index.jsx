@@ -1,8 +1,15 @@
+import { useState } from 'react';
 import { getSession } from 'next-auth/react';
 
 import { formatCurrency } from '../../lib/utils/currency';
 
 export default function MeusPedidos({ pedidos }) {
+  const [openOrderId, setOpenOrderId] = useState(null);
+
+  const toggleOrder = id => {
+    setOpenOrderId(openOrderId === id ? null : id);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Meus Pedidos</h1>
@@ -10,14 +17,17 @@ export default function MeusPedidos({ pedidos }) {
       {pedidos.length === 0 && <p>Você ainda não fez nenhum pedido.</p>}
 
       {pedidos.length > 0 && (
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {pedidos.map(pedido => (
-            <li key={pedido.id} className="border rounded p-4 shadow-md space-y-4">
-              <div className="flex justify-between items-center">
+            <div key={pedido.id} className="border rounded shadow-md">
+              <div
+                className="flex justify-between items-center p-4 cursor-pointer"
+                onClick={() => toggleOrder(pedido.id)}
+              >
                 <h2 className="text-lg font-bold">Pedido #{pedido.id}</h2>
                 <span
                   className={`px-2 py-1 text-sm font-semibold rounded-full ${
-                    pedido.status === 'Entregue'
+                    pedido.status === 'Entregue' || pedido.status === 'Pago'
                       ? 'bg-green-100 text-green-800'
                       : pedido.status === 'Cancelado'
                         ? 'bg-red-100 text-red-800'
@@ -27,38 +37,42 @@ export default function MeusPedidos({ pedidos }) {
                   {pedido.status}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">
-                Data: {new Date(pedido.data_criacao).toLocaleDateString()}
-              </p>
+              {openOrderId === pedido.id && (
+                <div className="p-4 border-t space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Data: {new Date(pedido.data_criacao).toLocaleDateString()}
+                  </p>
 
-              <div>
-                <h3 className="font-semibold mb-2">Itens do Pedido:</h3>
-                <ul className="space-y-2">
-                  {pedido.itens.map(item => (
-                    <li
-                      key={item.produto_id}
-                      className="flex justify-between items-center p-2 bg-gray-50 rounded"
-                    >
-                      <div>
-                        <p className="font-medium">{item.nome_produto}</p>
-                        <p className="text-sm text-gray-500">
-                          {item.quantidade} x €{formatCurrency(item.preco_unitario)}
-                        </p>
-                      </div>
-                      <p className="font-semibold">
-                        €{formatCurrency(item.quantidade * item.preco_unitario)}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Itens do Pedido:</h3>
+                    <ul className="space-y-2">
+                      {pedido.itens.map(item => (
+                        <li
+                          key={item.produto_id}
+                          className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                        >
+                          <div>
+                            <p className="font-medium">{item.nome_produto}</p>
+                            <p className="text-sm text-gray-500">
+                              {item.quantidade} x €{formatCurrency(item.preco_unitario)}
+                            </p>
+                          </div>
+                          <p className="font-semibold">
+                            €{formatCurrency(item.quantidade * item.preco_unitario)}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-              <div className="text-right font-bold text-lg">
-                <p>Total do Pedido: €{formatCurrency(pedido.total)}</p>
-              </div>
-            </li>
+                  <div className="text-right font-bold text-lg">
+                    <p>Total do Pedido: €{formatCurrency(pedido.total)}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
