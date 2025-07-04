@@ -40,17 +40,10 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `ativo` BOOLEAN DEFAULT TRUE,
   `ultimo_login` DATETIME DEFAULT NULL,
   `data_criacao` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `passwordResetToken` VARCHAR(255) DEFAULT NULL,
+  `passwordResetExpires` DATETIME DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Tabela de Tokens de Redefinição
-CREATE TABLE IF NOT EXISTS `tokens_redefinicao` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `email` VARCHAR(255) NOT NULL,
-  `token` VARCHAR(255) NOT NULL,
-  `createdAt` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabela de Endereços dos Usuários
