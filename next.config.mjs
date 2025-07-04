@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -11,6 +12,9 @@ const nextConfig = {
       },
     ],
   },
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

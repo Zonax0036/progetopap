@@ -91,9 +91,11 @@ export function CarrinhoProvider({ children }) {
 
         const novoCarrinho = existente
           ? prevCarrinho.map(item =>
-              item.id === produto.id ? { ...item, quantidade: item.quantidade + 1 } : item,
+              item.id === produto.id
+                ? { ...item, quantidade: item.quantidade + (produto.quantidade || 1) }
+                : item,
             )
-          : [...prevCarrinho, { ...produto, quantidade: 1 }];
+          : [...prevCarrinho, { ...produto, quantidade: produto.quantidade || 1 }];
 
         // Exibe notificação
         setNotificacao({

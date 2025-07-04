@@ -33,7 +33,8 @@ export default [
         fetch: "readonly",
         localStorage: "readonly",
         require: "readonly",
-        module: "readonly"
+        module: "readonly",
+        process: "readonly"
       },
     },
     plugins: {
@@ -69,7 +70,7 @@ export default [
   },
 
   {
-    files: ["pages/api/**/*.js", "lib/**/*.js"],
+    files: ["pages/api/**/*.js", "lib/**/*.js", "next.config.mjs"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
