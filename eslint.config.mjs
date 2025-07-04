@@ -34,7 +34,8 @@ export default [
         localStorage: "readonly",
         require: "readonly",
         module: "readonly",
-        process: "readonly"
+        process: "readonly",
+        CustomEvent: "readonly"
       },
     },
     plugins: {
