@@ -155,7 +155,7 @@ export default function PerfilPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-700 mb-2">
-                    Informações de Contato
+                    Informações de Contacto
                   </h2>
                   <p className="text-gray-500">Endereço: {endereco || 'Não Informado'}</p>
                 </div>

@@ -5,6 +5,7 @@ import LayoutUser from '@/components/LayoutUser';
 import AdminLayout from '@/components/admin/AdminLayout';
 import '@/styles/globals.css';
 import { CarrinhoProvider } from '@/context/CarrinhoContext';
+import { FavoritosProvider } from '@/context/FavoritosContext';
 
 function LayoutWrapper({ Component, pageProps }) {
   const { data: session, status } = useSession();
@@ -36,7 +37,9 @@ export default function MyApp({ Component, pageProps }) {
   return (
     <SessionProvider session={pageProps.session}>
       <CarrinhoProvider>
-        <LayoutWrapper Component={Component} pageProps={pageProps} />
+        <FavoritosProvider>
+          <LayoutWrapper Component={Component} pageProps={pageProps} />
+        </FavoritosProvider>
       </CarrinhoProvider>
     </SessionProvider>
   );

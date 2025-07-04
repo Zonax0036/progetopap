@@ -77,7 +77,6 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    // eslint-disable-next-line no-undef
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pedidos`, {
       headers: {
         Cookie: context.req.headers.cookie || '',
@@ -90,7 +89,6 @@ export async function getServerSideProps(context) {
 
     const pedidos = await res.json();
 
-    console.log({ pedidos });
     return {
       props: {
         pedidos,

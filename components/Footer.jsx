@@ -25,20 +25,19 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/contato" className="hover:text-blue-300">
-                  Contato
+                <a href="/contacto" className="hover:text-blue-300">
+                  Contacto
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Coluna 2: Contato */}
+          {/* Coluna 2: Contacto */}
           <div>
-            <h3 className="text-lg font-bold mb-4">Contato</h3>
+            <h3 className="text-lg font-bold mb-4">Contacto</h3>
             <address className="not-italic">
               <p>Email: info@sportshop.com</p>
-              <p>Telefone: </p>
-              <p>Endereço: Av. do Esporte, 123</p>
+              <p>Morada: Av. do Esporte, 123</p>
             </address>
           </div>
 

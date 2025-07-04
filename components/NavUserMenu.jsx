@@ -51,6 +51,9 @@ export default function NavUserMenu({ session }) {
           <Link href="/pedidos" legacyBehavior>
             <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Meus Pedidos</a>
           </Link>
+          <Link href="/favoritos" legacyBehavior>
+            <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Favoritos</a>
+          </Link>
 
           <hr className="my-1" />
           <button
