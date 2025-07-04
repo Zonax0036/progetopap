@@ -165,16 +165,7 @@ export default function Login() {
           </div>
 
           {/* Lembrar e link de redefinir */}
-          <div className="flex items-center justify-between">
-            <label className="flex items-center text-sm text-gray-900">
-              <input
-                id="lembrar"
-                name="lembrar"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-              />
-              <span className="ml-2">Lembrar-me</span>
-            </label>
+          <div className="flex items-center justify-end">
             <Link href="/redefinir" className="text-sm text-blue-600 hover:text-blue-500">
               Esqueceu a senha?
             </Link>
