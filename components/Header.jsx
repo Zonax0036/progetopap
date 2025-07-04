@@ -46,33 +46,37 @@ export default function Header({ searchTerm, setSearchTerm, onSearch }) {
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} onSearch={onSearch} />
 
         <nav className="flex items-center space-x-4">
-          <Link href="/favoritos" legacyBehavior>
-            <a className="relative md:flex items-center pr-5 hover:text-blue-600 text-gray-700">
-              <FaHeart className="text-lg" />
-              <span className="hidden md:inline ml-1 text-sm">Favoritos</span>
-              {favoritos.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {favoritos.length}
-                </span>
-              )}
-            </a>
-          </Link>
+          {session && (
+            <>
+              <Link href="/favoritos" legacyBehavior>
+                <a className="relative md:flex items-center pr-5 hover:text-blue-600 text-gray-700">
+                  <FaHeart className="text-lg" />
+                  <span className="hidden md:inline ml-1 text-sm">Favoritos</span>
+                  {favoritos.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {favoritos.length}
+                    </span>
+                  )}
+                </a>
+              </Link>
 
-          <Link href="/carrinho" legacyBehavior>
-            <a className="relative flex items-center  pr-5 hover:text-blue-600 text-gray-700">
-              <FaShoppingCart className="text-lg" />
-              <span className="hidden md:inline ml-1 text-sm">Carrinho</span>
+              <Link href="/carrinho" legacyBehavior>
+                <a className="relative flex items-center  pr-5 hover:text-blue-600 text-gray-700">
+                  <FaShoppingCart className="text-lg" />
+                  <span className="hidden md:inline ml-1 text-sm">Carrinho</span>
 
-              {itemCount > 0 && (
-                <span
-                  key={itemCount}
-                  className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-                >
-                  {itemCount}
-                </span>
-              )}
-            </a>
-          </Link>
+                  {itemCount > 0 && (
+                    <span
+                      key={itemCount}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+                    >
+                      {itemCount}
+                    </span>
+                  )}
+                </a>
+              </Link>
+            </>
+          )}
 
           {/* Componente de menu do usuário */}
           <NavUserMenu session={session} />
