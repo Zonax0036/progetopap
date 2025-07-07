@@ -10,6 +10,8 @@ DELETE FROM pedidos;
 DELETE FROM produtos;
 DELETE FROM categorias;
 DELETE FROM usuarios;
+DELETE FROM favoritos;
+DELETE FROM moradas;
 
 -- Resetar auto-incremento
 ALTER TABLE pedido_itens AUTO_INCREMENT = 1;
@@ -17,6 +19,8 @@ ALTER TABLE pedidos AUTO_INCREMENT = 1;
 ALTER TABLE produtos AUTO_INCREMENT = 1;
 ALTER TABLE categorias AUTO_INCREMENT = 1;
 ALTER TABLE usuarios AUTO_INCREMENT = 1;
+ALTER TABLE favoritos AUTO_INCREMENT = 1;
+ALTER TABLE moradas AUTO_INCREMENT = 1;
 
 
 -- 1. Inserir Categorias
@@ -430,6 +434,20 @@ INSERT INTO `pedido_itens` (`pedido_id`, `produto_id`, `nome_produto`, `preco`, 
 (7, 1, 'Bola de Futebol Oficial', 120.00, 1, '/products/soccer.avif'),
 -- Pedido 8
 (8, 4, 'Sapatilhas de Corrida', 250.00, 1, '/products/placeholder.jpg');
+
+-- 6. Inserir Favoritos
+INSERT INTO `favoritos` (`user_id`, `produto_id`) VALUES
+(2, 1),
+(2, 3),
+(3, 5),
+(5, 2),
+(5, 8);
+
+-- 7. Inserir Moradas
+INSERT INTO `moradas` (`user_id`, `nome_morada`, `rua`, `numero`, `complemento`, `conselho`, `distrito`, `codigo_postal`) VALUES
+(2, 'Casa', 'Rua das Flores', '123', 'Apto 4B', 'Lisboa', 'Lisboa', '1000-001'),
+(3, 'Trabalho', 'Avenida da Liberdade', '456', 'Piso 2', 'Lisboa', 'Lisboa', '1250-142'),
+(5, 'Casa de Praia', 'Rua da Praia', '789', NULL, 'Cascais', 'Lisboa', '2750-310');
 
 COMMIT;
 
