@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ProductCard } from '@/components/ProductCard';
 import { LoadingSpinner } from '@/components/Loading';
 import { useRouter } from 'next/router';

@@ -14,6 +14,7 @@ export default function AdicionarProduto() {
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
   const [imagem, setImagem] = useState('');
+  const [imagemFicheiro, setImagemFicheiro] = useState(null);
   const [categoria, setCategoria] = useState('');
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,50 +44,54 @@ export default function AdicionarProduto() {
   const handleSubmit = async e => {
     e.preventDefault();
 
-    // Validar campos obrigatórios
     if (!nome || !preco || !categoria) {
       setErro('Nome, preço e categoria são obrigatórios');
       return;
     }
 
-    // Validar formato do preço
     const precoNumerico = parseFloat(preco.replace(',', '.'));
     if (isNaN(precoNumerico)) {
       setErro('Preço inválido. Use apenas números.');
       return;
     }
 
-    // Validar URL da imagem
-    if (imagem && !imagem.startsWith('http')) {
-      setErro('URL de imagem inválida. Deve começar com http:// ou https://');
-      return;
-    }
+    setLoading(true);
+    setErro('');
+
+    let imageUrl = imagem;
 
     try {
-      setLoading(true);
-      setErro('');
+      if (imagemFicheiro) {
+        const formData = new FormData();
+        formData.append('file', imagemFicheiro);
+        formData.append('productName', nome);
 
-      // Enviar dados para a API
+        const response = await axios.post('/api/produtos/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        imageUrl = response.data.imageUrl;
+      }
+
       await axios.post('/api/produtos', {
         nome,
         descricao,
         preco: precoNumerico,
-        imagem,
+        imagem: imageUrl,
         categoria,
       });
 
-      // Mostrar mensagem de sucesso
       setSuccess(true);
-
-      // Limpar o formulário
       setNome('');
       setDescricao('');
       setPreco('');
       setImagem('');
+      setImagemFicheiro(null);
       setCategoria('');
 
       setTimeout(() => {
-        router.push('/admin');
+        router.push('/admin/produtos');
       }, 1000);
     } catch (error) {
       console.error('Erro ao adicionar produto:', error);
@@ -147,25 +152,20 @@ export default function AdicionarProduto() {
 
         {/* URL da Imagem */}
         <div>
-          <label className="block text-gray-700 mb-1">URL da Imagem</label>
+          <label className="block text-gray-700 mb-1">Imagem do Produto</label>
           <input
-            type="text"
-            value={imagem}
-            onChange={e => setImagem(e.target.value)}
+            type="file"
+            onChange={e => setImagemFicheiro(e.target.files[0])}
             className="w-full p-2 border rounded"
-            placeholder="https://..."
             disabled={loading}
+            accept="image/*"
           />
-          {imagem && (
+          {imagemFicheiro && (
             <div className="mt-2">
               <img
-                src={imagem}
+                src={URL.createObjectURL(imagemFicheiro)}
                 alt="Preview"
                 className="max-h-40 object-contain"
-                onError={e => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/150?text=Imagem+Inválida';
-                }}
               />
             </div>
           )}

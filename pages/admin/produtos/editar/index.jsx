@@ -11,6 +11,7 @@ export default function EditarProduto() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
   const [mensagem, setMensagem] = useState('');
+  const [imagemFicheiro, setImagemFicheiro] = useState(null);
 
   useEffect(() => {
     if (!router.isReady || !id) {
@@ -47,13 +48,32 @@ export default function EditarProduto() {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setLoading(true);
+    let imageUrl = produto.imagem;
+
     try {
-      await axios.put(`/api/produtos/${id}`, produto);
+      if (imagemFicheiro) {
+        const formData = new FormData();
+        formData.append('file', imagemFicheiro);
+        formData.append('productName', produto.nome);
+
+        const response = await axios.post('/api/produtos/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        imageUrl = response.data.imageUrl;
+      }
+
+      await axios.put(`/api/produtos/${id}`, { ...produto, imagem: imageUrl });
       setMensagem('Produto atualizado com sucesso!');
       setErro('');
+      setImagemFicheiro(null);
     } catch (err) {
       console.error(err);
       setErro('Erro ao atualizar produto.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,26 +125,34 @@ export default function EditarProduto() {
         </div>
 
         <div>
-          <label className="block font-medium">Imagem (URL)</label>
+          <label className="block font-medium">Imagem do Produto</label>
           <input
-            type="text"
-            name="imagem"
-            value={produto.imagem || ''}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            placeholder="https://..."
+            type="file"
+            onChange={e => setImagemFicheiro(e.target.files[0])}
+            className="w-full p-2 border rounded"
+            accept="image/*"
           />
-          {produto.imagem && (
-            <img
-              src={produto.imagem}
-              alt="Pré-visualização"
-              className="mt-2 h-40 object-contain rounded"
-              onError={e => {
-                e.target.onerror = null;
-                e.target.src = 'https://via.placeholder.com/150?text=Imagem+Inválida';
-              }}
-            />
-          )}
+          <div className="mt-2">
+            {imagemFicheiro ? (
+              <img
+                src={URL.createObjectURL(imagemFicheiro)}
+                alt="Nova pré-visualização"
+                className="max-h-40 object-contain rounded"
+              />
+            ) : (
+              produto.imagem && (
+                <img
+                  src={produto.imagem}
+                  alt="Imagem atual"
+                  className="max-h-40 object-contain rounded"
+                  onError={e => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/150?text=Imagem+Inválida';
+                  }}
+                />
+              )
+            )}
+          </div>
         </div>
 
         <div>

@@ -25,6 +25,9 @@ export function TabelaProdutos({ produtos, onExcluir, loading }) {
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Imagem
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
               Produto
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -44,6 +47,17 @@ export function TabelaProdutos({ produtos, onExcluir, loading }) {
         <tbody className="bg-white divide-y divide-gray-200">
           {produtos.map(produto => (
             <tr key={produto.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <img
+                  src={produto.imagem || '/products/placeholder.jpg'}
+                  alt={produto.nome}
+                  className="h-12 w-12 object-cover rounded"
+                  onError={e => {
+                    e.target.onerror = null;
+                    e.target.src = '/products/placeholder.jpg';
+                  }}
+                />
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">{produto.nome}</td>
               <td className="px-6 py-4 whitespace-nowrap">{produto.categoria}</td>
               <td className="px-6 py-4 whitespace-nowrap">
