@@ -35,7 +35,10 @@ export default [
         require: "readonly",
         module: "readonly",
         process: "readonly",
-        CustomEvent: "readonly"
+        CustomEvent: "readonly",
+        FormData: "readonly",
+        URL: "readonly",
+        URLSearchParams: "readonly"
       },
     },
     plugins: {
