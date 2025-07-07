@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
@@ -10,39 +10,63 @@ export default function PerfilPage() {
   const [editMode, setEditMode] = useState(false);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
-  const [endereco, setEndereco] = useState('');
+  const [nif, setNif] = useState('');
+  const [emailFatura, setEmailFatura] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    const carregarPerfil = async () => {
-      setLoading(true);
-      const session = await getSession();
+  const carregarPerfil = useCallback(async () => {
+    setLoading(true);
+    const session = await getSession();
+    if (!session) {
+      router.push('/login');
+      return;
+    }
 
-      if (!session) {
-        router.push('/login');
-        return;
+    try {
+      const response = await fetch('/api/perfil');
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+        setNome(data.nome || '');
+        setEmail(data.email || '');
+        setNif(data.nif || '');
+        setEmailFatura(data.email_fatura || '');
+      } else {
+        console.error('Erro ao carregar perfil');
       }
-
-      setUser(session.user);
-      setNome(session.user.name || '');
-      setEmail(session.user.email || '');
-      setEndereco(session.user.endereco || '');
+    } catch (error) {
+      console.error('Erro ao carregar perfil:', error);
+    } finally {
       setLoading(false);
-    };
-
-    carregarPerfil();
+    }
   }, [router]);
+
+  useEffect(() => {
+    carregarPerfil();
+  }, [carregarPerfil, router]);
 
   const salvarPerfil = async () => {
     setLoading(true);
+    try {
+      const response = await fetch('/api/perfil', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, nif, email_fatura: emailFatura }),
+      });
 
-    // Simulação de salvamento no banco de dados
-    setTimeout(() => {
-      setUser({ ...user, name: nome, email: email, endereco: endereco });
-      setEditMode(false);
+      if (response.ok) {
+        await carregarPerfil();
+        setEditMode(false);
+        alert('Perfil atualizado com sucesso!');
+      } else {
+        alert('Erro ao atualizar o perfil.');
+      }
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error);
+      alert('Erro ao salvar o perfil.');
+    } finally {
       setLoading(false);
-      alert('Perfil atualizado com sucesso!');
-    }, 1000);
+    }
   };
 
   if (loading) {
@@ -120,15 +144,31 @@ export default function PerfilPage() {
               </div>
 
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="endereco">
-                  Endereço:
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nif">
+                  NIF:
                 </label>
                 <input
                   type="text"
-                  id="endereco"
+                  id="nif"
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  value={endereco}
-                  onChange={e => setEndereco(e.target.value)}
+                  value={nif}
+                  onChange={e => setNif(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="email_fatura"
+                >
+                  Email para Fatura:
+                </label>
+                <input
+                  type="email"
+                  id="email_fatura"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  value={emailFatura}
+                  onChange={e => setEmailFatura(e.target.value)}
                 />
               </div>
 
@@ -151,20 +191,10 @@ export default function PerfilPage() {
             <div>
               <h1 className="text-2xl font-semibold text-gray-800 mb-4">{user.name}</h1>
               <p className="text-gray-600 mb-4">{user.email}</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-700 mb-2">
-                    Informações de Contacto
-                  </h2>
-                  <p className="text-gray-500">Endereço: {endereco || 'Não Informado'}</p>
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-700 mb-2">Outras Informações</h2>
-                  <p className="text-gray-500">Gênero: Não Informado</p>
-                </div>
-              </div>
+              <p className="text-gray-600 mb-4">NIF: {user.nif || 'Não informado'}</p>
+              <p className="text-gray-600 mb-4">
+                Email para Fatura: {user.email_fatura || 'Email principal'}
+              </p>
 
               <div className="flex justify-between items-center mt-8">
                 <button
