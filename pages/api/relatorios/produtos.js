@@ -11,7 +11,7 @@ export default async function handler(req, res) {
           p.imagem,
           c.nome as categoria,
           SUM(pi.quantidade) as total_vendido,
-          SUM(pi.quantidade * pi.preco) as receita_total
+          SUM(pi.quantidade * p.preco) as receita_total
         FROM produtos p
         JOIN pedido_itens pi ON p.id = pi.produto_id
         JOIN categorias c ON p.categoria_id = c.id

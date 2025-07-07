@@ -2,10 +2,16 @@ import Link from 'next/link';
 import { FaUser, FaSignOutAlt, FaAngleDown } from 'react-icons/fa';
 import { signOut } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
+import { useCarrinho } from '@/context/CarrinhoContext';
 
 export default function NavUserMenu({ session }) {
   const [menuAberto, setMenuAberto] = useState(false);
   const menuRef = useRef(null);
+  useCarrinho();
+
+  const handleLogout = () => {
+    signOut();
+  };
 
   // Fecha o menu quando clicar fora
   useEffect(() => {
@@ -57,8 +63,8 @@ export default function NavUserMenu({ session }) {
 
           <hr className="my-1" />
           <button
-            onClick={() => signOut({ redirect: false, callbackUrl: '/' })}
-            className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center"
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center"
           >
             <FaSignOutAlt className="mr-2" /> Sair
           </button>
