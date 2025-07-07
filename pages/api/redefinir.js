@@ -1,7 +1,9 @@
 import { pool } from '@/lib/conectarDB';
 import crypto from 'crypto';
-// This is a placeholder for an email sending service
-// import { sendPasswordResetEmail } from '@/lib/email';
+import { Resend } from 'resend';
+import RedefinirSenhaEmail from '@/emails/RedefinirSenhaEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -41,13 +43,21 @@ export default async function handler(req, res) {
       [passwordResetToken, passwordResetExpires, user.id],
     );
 
-    // TODO: Implement email sending
-    // For now, we'll just log the token to the console.
-    // In a real application, you would send an email with a link like:
-    // const resetUrl = `${process.env.NEXTAUTH_URL}/redefinir/${resetToken}`;
-    // await sendPasswordResetEmail(user.email, resetUrl);
+    const resetUrl = `${process.env.NEXTAUTH_URL}/redefinir/${resetToken}`;
 
-    console.log(`Password reset token for ${email}: ${resetToken}`);
+    const emailParaRedefinicao = user.email_fatura || user.email;
+
+    try {
+      await resend.emails.send({
+        from: 'Loja Desportiva <onboarding@resend.dev>',
+        to: [emailParaRedefinicao],
+        subject: 'Redefinição de Senha',
+        react: <RedefinirSenhaEmail urlRedefinicao={resetUrl} />,
+      });
+    } catch (error) {
+      console.error('Erro ao enviar email de redefinição de senha:', error);
+      return res.status(500).json({ message: 'Erro ao enviar email de redefinição de senha' });
+    }
 
     res
       .status(200)

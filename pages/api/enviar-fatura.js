@@ -67,7 +67,7 @@ export default async function handler(req, res) {
     };
 
     await resend.emails.send({
-      from: 'Loja Desportiva <vendas@lojadesportiva.pt>',
+      from: 'Loja Desportiva <onboarding@resend.dev>',
       to: [emailParaFatura],
       subject: `Fatura do seu pedido #${pedido.id}`,
       react: FaturaEmail({ fatura }),
@@ -75,7 +75,10 @@ export default async function handler(req, res) {
 
     res.status(200).json({ message: 'Email da fatura enviado com sucesso!' });
   } catch (error) {
-    console.error('Erro ao enviar email da fatura:', error);
+    console.error(
+      `Erro ao enviar email da fatura para o pedido ${pedidoId} para o email ${emailParaFatura}:`,
+      error,
+    );
     res.status(500).json({ message: 'Erro ao enviar email da fatura', error: error.message });
   }
 }

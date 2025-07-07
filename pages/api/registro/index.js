@@ -1,5 +1,9 @@
 import { pool } from '@/lib/conectarDB';
 import bcrypt from 'bcryptjs';
+import { Resend } from 'resend';
+import BoasVindasEmail from '@/emails/BoasVindasEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -30,6 +34,23 @@ export default async function handler(req, res) {
       hashedSenha,
       'user',
     ]);
+
+    const [newUserRows] = await pool.execute('SELECT * FROM usuarios WHERE email = ?', [email]);
+    const newUser = newUserRows[0];
+    const emailParaBoasVindas = newUser.email_fatura || newUser.email;
+
+    try {
+      await resend.emails.send({
+        from: 'Loja Desportiva <onboarding@resend.dev>',
+        to: [emailParaBoasVindas],
+        subject: 'Bem-vindo à Loja Desportiva!',
+        react: <BoasVindasEmail nomeUtilizador={nome} />,
+      });
+    } catch (error) {
+      console.error('Erro ao enviar email de boas-vindas:', error);
+      // Mesmo que o email falhe, o usuário foi criado.
+      // Pode-se adicionar um logging mais robusto aqui.
+    }
 
     return res.status(201).json({ message: 'Usuário criado com sucesso!' });
   } catch (error) {
