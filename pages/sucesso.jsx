@@ -31,6 +31,18 @@ export default function SucessoPage() {
           }
 
           setMensagem('Obrigado pela sua compra. O seu pedido foi processado com sucesso.');
+
+          // Enviar email da fatura
+          try {
+            await fetch('/api/enviar-fatura', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ pedidoId: data.pedidoId }),
+            });
+          } catch (emailError) {
+            console.error('Falha ao enviar email da fatura:', emailError);
+            // Opcional: Adicionar uma mensagem para o usuário informando que o email pode não ter sido enviado
+          }
         } catch (err) {
           setErro(err.message);
           setMensagem('Ocorreu um erro ao processar o seu pedido.');

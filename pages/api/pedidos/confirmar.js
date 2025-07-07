@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
         await pool.execute('UPDATE pedidos SET status = ? WHERE id = ?', ['Pago', pedidoId]);
 
-        return res.status(200).json({ message: 'Pedido atualizado com sucesso.' });
+        return res.status(200).json({ message: 'Pedido atualizado com sucesso.', pedidoId });
       } else {
         return res.status(400).json({ error: 'O pagamento não foi concluído.' });
       }

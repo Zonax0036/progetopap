@@ -4,9 +4,6 @@ import { useRouter } from 'next/router';
 
 const CarrinhoContext = createContext();
 
-const STORAGE_KEY = 'carrinho';
-
-// Função para emitir evento de atualização do carrinho
 const emitirEventoCarrinhoAtualizado = carrinho => {
   if (typeof window !== 'undefined') {
     const totalItens = carrinho.reduce((total, item) => total + (item.quantidade || 1), 0);
@@ -21,43 +18,35 @@ import { toast } from 'sonner';
 
 export function CarrinhoProvider({ children }) {
   const [carrinho, setCarrinho] = useState([]);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Carrega o carrinho do localStorage no início
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
+  const carregarCarrinhoDoDB = useCallback(async () => {
+    if (session) {
       try {
-        const salvo = localStorage.getItem(STORAGE_KEY);
-        if (salvo) {
-          const carrinhoSalvo = JSON.parse(salvo);
-          setCarrinho(carrinhoSalvo);
-          // Emite evento com o carrinho carregado
-          emitirEventoCarrinhoAtualizado(carrinhoSalvo);
+        const response = await fetch('/api/carrinho');
+        if (response.ok) {
+          const data = await response.json();
+          setCarrinho(data);
+          emitirEventoCarrinhoAtualizado(data);
         }
-      } catch (err) {
-        console.error('Erro ao carregar carrinho:', err);
-        localStorage.removeItem(STORAGE_KEY);
+      } catch (error) {
+        console.error('Erro ao carregar carrinho do DB:', error);
       }
     }
-  }, []);
+  }, [session]);
 
-  // Salva o carrinho no localStorage e emite evento quando mudar
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        if (carrinho.length > 0) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(carrinho));
-        } else {
-          localStorage.removeItem(STORAGE_KEY);
-        }
-
-        // Emite evento sempre que o carrinho mudar
-        emitirEventoCarrinhoAtualizado(carrinho);
-      } catch (err) {
-        console.error('Erro ao salvar carrinho:', err);
-      }
+    if (status === 'authenticated') {
+      carregarCarrinhoDoDB();
+    } else if (status === 'unauthenticated') {
+      setCarrinho([]);
+      emitirEventoCarrinhoAtualizado([]);
     }
+  }, [status, carregarCarrinhoDoDB]);
+
+  useEffect(() => {
+    emitirEventoCarrinhoAtualizado(carrinho);
   }, [carrinho]);
 
   const redirecionarSeNaoLogado = useCallback(() => {
@@ -69,47 +58,79 @@ export function CarrinhoProvider({ children }) {
   }, [session, router]);
 
   const adicionarAoCarrinho = useCallback(
-    produto => {
+    async produto => {
       if (redirecionarSeNaoLogado()) {
         return;
       }
 
-      setCarrinho(prevCarrinho => {
-        const existente = prevCarrinho.find(item => item.id === produto.id);
+      const existente = carrinho.find(item => item.id === produto.id);
+      const novaQuantidade = existente
+        ? existente.quantidade + (produto.quantidade || 1)
+        : produto.quantidade || 1;
 
-        const novoCarrinho = existente
-          ? prevCarrinho.map(item =>
-              item.id === produto.id
-                ? { ...item, quantidade: item.quantidade + (produto.quantidade || 1) }
-                : item,
-            )
-          : [...prevCarrinho, { ...produto, quantidade: produto.quantidade || 1 }];
-
+      try {
+        await fetch('/api/carrinho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ produto_id: produto.id, quantidade: novaQuantidade }),
+        });
+        await carregarCarrinhoDoDB();
         toast.success(`${produto.nome} adicionado ao carrinho!`);
-
-        return novoCarrinho;
-      });
+      } catch (error) {
+        console.error('Erro ao adicionar ao carrinho:', error);
+        toast.error('Erro ao adicionar produto.');
+      }
     },
-    [redirecionarSeNaoLogado],
+    [carrinho, redirecionarSeNaoLogado, carregarCarrinhoDoDB],
   );
 
-  const removerDoCarrinho = useCallback(produtoId => {
-    setCarrinho(prevCarrinho => prevCarrinho.filter(item => item.id !== produtoId));
-  }, []);
+  const removerDoCarrinho = useCallback(
+    async produtoId => {
+      try {
+        await fetch('/api/carrinho', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ produto_id: produtoId }),
+        });
+        await carregarCarrinhoDoDB();
+        toast.success('Produto removido do carrinho.');
+      } catch (error) {
+        console.error('Erro ao remover do carrinho:', error);
+        toast.error('Erro ao remover produto.');
+      }
+    },
+    [carregarCarrinhoDoDB],
+  );
 
-  const atualizarQuantidade = useCallback((produtoId, quantidade) => {
-    if (quantidade < 1) {
-      return;
+  const atualizarQuantidade = useCallback(
+    async (produtoId, quantidade) => {
+      if (quantidade < 1) {
+        return;
+      }
+
+      try {
+        await fetch('/api/carrinho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ produto_id: produtoId, quantidade }),
+        });
+        await carregarCarrinhoDoDB();
+      } catch (error) {
+        console.error('Erro ao atualizar quantidade:', error);
+        toast.error('Erro ao atualizar quantidade.');
+      }
+    },
+    [carregarCarrinhoDoDB],
+  );
+
+  const limparCarrinho = useCallback(async () => {
+    try {
+      await fetch('/api/carrinho/limpar', { method: 'POST' });
+      setCarrinho([]);
+      emitirEventoCarrinhoAtualizado([]);
+    } catch (error) {
+      console.error('Erro ao limpar carrinho:', error);
     }
-
-    setCarrinho(prevCarrinho =>
-      prevCarrinho.map(item => (item.id === produtoId ? { ...item, quantidade } : item)),
-    );
-  }, []);
-
-  const limparCarrinho = useCallback(() => {
-    setCarrinho([]);
-    localStorage.removeItem(STORAGE_KEY);
   }, []);
 
   const calcularTotal = useCallback(

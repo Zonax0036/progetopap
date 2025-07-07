@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { useCarrinho } from '@/context/CarrinhoContext';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -129,9 +130,11 @@ function EnderecoModal({ onClose, onEnderecoAdicionado }) {
   );
 }
 
-export default function CarrinhoPage({ user }) {
+export default function CarrinhoPage() {
   const { carrinho, removerDoCarrinho, atualizarQuantidade, limparCarrinho, calcularTotal } =
     useCarrinho();
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   // Estados gerais
   const [loading, setLoading] = useState(false);
@@ -160,29 +163,37 @@ export default function CarrinhoPage({ user }) {
 
   // Efeitos
   useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push(`/login?returnUrl=${encodeURIComponent('/carrinho')}`);
+    }
+  }, [status, router]);
+
+  useEffect(() => {
     setCustoEntrega(opcoesEntrega[opcaoEntrega].custo);
   }, [opcaoEntrega]);
 
   useEffect(() => {
-    const fetchEnderecos = async () => {
-      try {
-        const res = await fetch('/api/moradas');
-        if (!res.ok) {
-          throw new Error('Falha ao buscar moradas');
+    if (session) {
+      const fetchEnderecos = async () => {
+        try {
+          const res = await fetch('/api/moradas');
+          if (!res.ok) {
+            throw new Error('Falha ao buscar moradas');
+          }
+          const data = await res.json();
+          setEnderecos(data);
+          // Seleciona o primeiro endereço como padrão
+          if (data.length > 0) {
+            setEnderecoSelecionadoId(data[0].id);
+          }
+        } catch (error) {
+          console.error(error);
+          setMensagem({ texto: 'Não foi possível carregar seus moradas.', tipo: 'erro' });
         }
-        const data = await res.json();
-        setEnderecos(data);
-        // Seleciona o primeiro endereço como padrão
-        if (data.length > 0) {
-          setEnderecoSelecionadoId(data[0].id);
-        }
-      } catch (error) {
-        console.error(error);
-        setMensagem({ texto: 'Não foi possível carregar seus moradas.', tipo: 'erro' });
-      }
-    };
-    fetchEnderecos();
-  }, []);
+      };
+      fetchEnderecos();
+    }
+  }, [session]);
 
   // Funções de cálculo
   const subtotal = calcularTotal();
@@ -289,6 +300,18 @@ export default function CarrinhoPage({ user }) {
     }
   };
 
+  if (status === 'loading') {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>A carregar...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // O useEffect já está a tratar do redirecionamento
+  }
+
   return (
     <>
       {modalEnderecoAberto && (
@@ -304,7 +327,7 @@ export default function CarrinhoPage({ user }) {
         <div className="max-w-6xl mx-auto p-4">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-gray-800">
-              Carrinho de {user?.name || 'Usuário'}
+              Carrinho de {session.user?.name || 'Usuário'}
             </h1>
             <Link href="/" className="text-blue-600 hover:text-blue-800">
               ← Continuar comprando
@@ -313,7 +336,11 @@ export default function CarrinhoPage({ user }) {
 
           {mensagem.texto && (
             <div
-              className={`mb-4 p-3 rounded-md ${mensagem.tipo === 'sucesso' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+              className={`mb-4 p-3 rounded-md ${
+                mensagem.tipo === 'sucesso'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-red-100 text-red-700'
+              }`}
             >
               {mensagem.texto}
             </div>
@@ -492,17 +519,4 @@ export default function CarrinhoPage({ user }) {
       </div>
     </>
   );
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session) {
-    return {
-      redirect: {
-        destination: `/login?returnUrl=${encodeURIComponent('/carrinho')}`,
-        permanent: false,
-      },
-    };
-  }
-  return { props: { user: session.user } };
 }
