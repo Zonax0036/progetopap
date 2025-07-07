@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `nome` VARCHAR(255) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
   `senha` VARCHAR(255) NOT NULL,
+  `nif` VARCHAR(20) DEFAULT NULL,
+  `email_fatura` VARCHAR(255) DEFAULT NULL,
   `role` ENUM('admin','user') DEFAULT 'user',
   `ativo` BOOLEAN DEFAULT TRUE,
   `ultimo_login` DATETIME DEFAULT NULL,
@@ -123,4 +125,19 @@ CREATE TABLE IF NOT EXISTS `favoritos` (
   KEY `produto_id` (`produto_id`),
   CONSTRAINT `fk_favoritos_usuario` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_favoritos_produto` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela de Carrinho de Compras
+CREATE TABLE IF NOT EXISTS `carrinho` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `produto_id` INT(11) NOT NULL,
+  `quantidade` INT(11) NOT NULL DEFAULT 1,
+  `data_criacao` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_product_cart_unique` (`user_id`, `produto_id`),
+  KEY `user_id` (`user_id`),
+  KEY `produto_id` (`produto_id`),
+  CONSTRAINT `fk_carrinho_usuario` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_carrinho_produto` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
