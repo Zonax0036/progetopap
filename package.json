@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:images": "node scripts/seed-images.js"
   },
   "dependencies": {
     "@react-email/components": "^0.1.1",
