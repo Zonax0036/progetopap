@@ -10,6 +10,7 @@ function Produtos({ initialProdutos, initialTotal }) {
   const [produtos, setProdutos] = useState(initialProdutos);
   const [total, setTotal] = useState(initialTotal);
   const [pagina, setPagina] = useState(1);
+  const [ordenacao, setOrdenacao] = useState('nome_asc');
   const [limite] = useState(15);
   const [pesquisa, setPesquisa] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ function Produtos({ initialProdutos, initialTotal }) {
       setLoading(true);
       try {
         const res = await axios.get(`/api/produtos`, {
-          params: { pagina, limite, pesquisa },
+          params: { pagina, limite, pesquisa, ordenacao },
         });
         setProdutos(res.data.produtos);
         setTotal(res.data.total);
@@ -136,9 +137,9 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    const { pagina = 1, limite = 10 } = context.query;
+    const { pagina = 1, limite = 10, ordenacao = 'nome_asc' } = context.query;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos?pagina=${pagina}&limite=${limite}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/produtos?pagina=${pagina}&limite=${limite}&ordenacao=${ordenacao}`,
       {
         headers: {
           Cookie: context.req.headers.cookie || '',

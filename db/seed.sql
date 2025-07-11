@@ -6,12 +6,12 @@ SET CHARACTER SET utf8mb4;
 
 -- Limpar dados existentes para evitar duplicados
 DELETE FROM pedido_itens;
+DELETE FROM favoritos;
 DELETE FROM pedidos;
+DELETE FROM moradas;
 DELETE FROM produtos;
 DELETE FROM categorias;
 DELETE FROM usuarios;
-DELETE FROM favoritos;
-DELETE FROM moradas;
 
 -- Resetar auto-incremento
 ALTER TABLE pedido_itens AUTO_INCREMENT = 1;
@@ -38,14 +38,21 @@ VALUES
 -- 2. Inserir Usuários (incluindo um admin)
 -- A senha para todos os usuários de teste é '1234'.
 -- O valor abaixo é o hash bcrypt correspondente a '1234', simulando o armazenamento seguro.
-INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `role`, `ativo`, `ultimo_login`) VALUES
-(1, 'Admin User', 'admin@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'admin', 1, NOW() - INTERVAL 1 DAY),
-(2, 'Ana Silva', 'ana.silva@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 1, NOW() - INTERVAL 2 DAY),
-(3, 'Bruno Costa', 'bruno.costa@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 1, NOW() - INTERVAL 5 HOUR),
-(4, 'Carla Dias', 'carla.dias@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 0, NOW() - INTERVAL 30 DAY),
-(5, 'David Martins', 'david.martins@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', 'user', 1, NOW() - INTERVAL 10 MINUTE);
+INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `nif`, `email_fatura`, `role`, `ativo`, `ultimo_login`) VALUES
+(1, 'Admin User', 'admin@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', '500100200', NULL, 'admin', 1, NOW() - INTERVAL 1 DAY),
+(2, 'Ana Silva', 'ana.silva@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', '250100201', NULL, 'user', 1, NOW() - INTERVAL 2 DAY),
+(3, 'Bruno Costa', 'bruno.costa@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', '250100202', NULL, 'user', 1, NOW() - INTERVAL 5 HOUR),
+(4, 'Carla Dias', 'carla.dias@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', '250100203', NULL, 'user', 0, NOW() - INTERVAL 30 DAY),
+(5, 'David Martins', 'david.martins@example.com', '$2b$10$6jMr2cm53qMQZ/tp9zFM7.DBoOlH6qXkR0HOqtQ2WZTYEhfmBpFKq', '250100204', NULL, 'user', 1, NOW() - INTERVAL 10 MINUTE);
 
--- Inserir Produtos
+-- 3. Inserir Moradas
+INSERT INTO `moradas` (`user_id`, `nome_morada`, `rua`, `numero`, `complemento`, `conselho`, `distrito`, `codigo_postal`) VALUES
+(2, 'Casa', 'Rua das Flores', '123', 'Apto 4B', 'Lisboa', 'Lisboa', '1000-001'),
+(3, 'Trabalho', 'Avenida da Liberdade', '456', 'Piso 2', 'Lisboa', 'Lisboa', '1250-142'),
+(5, 'Casa de Praia', 'Rua da Praia', '789', NULL, 'Cascais', 'Lisboa', '2750-310'),
+(4, 'Casa', 'Rua do Ouro', '150', 'Andar 3', 'Porto', 'Porto', '4050-422');
+
+-- 4. Inserir Produtos
 INSERT IGNORE INTO `produtos` (
     `nome`,
     `descricao`,
@@ -403,37 +410,37 @@ VALUES
 
 -- 4. Inserir Pedidos
 -- Simulando pedidos em diferentes datas e com status variados
-INSERT INTO `pedidos` (`id`, `user_id`, `total`, `status`, `data_criacao`) VALUES
-(1, 2, 205.50, 'enviado', NOW() - INTERVAL 15 DAY),
-(2, 3, 95.00, 'pago', NOW() - INTERVAL 10 DAY),
-(3, 5, 290.00, 'enviado', NOW() - INTERVAL 8 DAY),
-(4, 2, 70.00, 'cancelado', NOW() - INTERVAL 5 DAY),
-(5, 4, 80.00, 'pago', NOW() - INTERVAL 3 DAY),
-(6, 5, 15.00, 'pendente', NOW() - INTERVAL 1 DAY),
-(7, 3, 120.00, 'pago', NOW() - INTERVAL 22 HOUR),
-(8, 2, 250.00, 'pendente', NOW() - INTERVAL 5 HOUR);
+INSERT INTO `pedidos` (`id`, `user_id`, `morada_id`, `subtotal`, `valor_entrega`, `total`, `metodo_pagamento`, `status`, `data_criacao`) VALUES
+(1, 2, 1, 200.50, 5.00, 205.50, 'Cartão de Crédito', 'Enviado', NOW() - INTERVAL 15 DAY),
+(2, 3, 2, 90.00, 5.00, 95.00, 'Cartão de Crédito', 'Pago', NOW() - INTERVAL 10 DAY),
+(3, 5, 3, 285.00, 5.00, 290.00, 'Cartão de Crédito', 'Enviado', NOW() - INTERVAL 8 DAY),
+(4, 2, 1, 65.00, 5.00, 70.00, 'MB Way', 'Cancelado', NOW() - INTERVAL 5 DAY),
+(5, 4, 4, 75.00, 5.00, 80.00, 'Cartão de Crédito', 'Pago', NOW() - INTERVAL 3 DAY),
+(6, 5, 3, 10.00, 5.00, 15.00, 'PayPal', 'Pendente', NOW() - INTERVAL 1 DAY),
+(7, 3, 2, 115.00, 5.00, 120.00, 'Cartão de Crédito', 'Pago', NOW() - INTERVAL 22 HOUR),
+(8, 2, 1, 245.00, 5.00, 250.00, 'Cartão de Crédito', 'Pendente', NOW() - INTERVAL 5 HOUR);
 
 -- 5. Inserir Itens do Pedido
-INSERT INTO `pedido_itens` (`pedido_id`, `produto_id`, `nome_produto`, `preco`, `quantidade`, `imagem`) VALUES
+INSERT INTO `pedido_itens` (`pedido_id`, `produto_id`, `quantidade`, `preco_unitario`) VALUES
 -- Pedido 1
-(1, 1, 'Bola de Futebol Oficial', 120.00, 1, '/products/soccer.avif'),
-(1, 2, 'Camisola de Futebol', 85.50, 1, '/products/placeholder.jpg'),
+(1, 1, 1, 120.00),
+(1, 2, 1, 85.50),
 -- Pedido 2
-(2, 3, 'Bola de Basquetebol', 95.00, 1, '/products/placeholder.jpg'),
+(2, 3, 1, 95.00),
 -- Pedido 3
-(3, 4, 'Sapatilhas de Corrida', 250.00, 1, '/products/placeholder.jpg'),
-(3, 5, 'Calções de Corrida', 40.00, 1, '/products/placeholder.jpg'),
+(3, 4, 1, 250.00),
+(3, 5, 1, 40.00),
 -- Pedido 4
-(4, 7, 'Fato de Banho', 70.00, 1, '/products/placeholder.jpg'),
+(4, 7, 1, 70.00),
 -- Pedido 5
-(5, 8, 'Halteres 5kg (Par)', 55.00, 1, '/products/placeholder.jpg'),
-(5, 9, 'Tapete de Yoga', 25.00, 1, '/products/placeholder.jpg'),
+(5, 8, 1, 55.00),
+(5, 9, 1, 25.00),
 -- Pedido 6
-(6, 10, 'Garrafa de Água 1L', 15.00, 1, '/products/placeholder.jpg'),
+(6, 10, 1, 15.00),
 -- Pedido 7
-(7, 1, 'Bola de Futebol Oficial', 120.00, 1, '/products/soccer.avif'),
+(7, 1, 1, 120.00),
 -- Pedido 8
-(8, 4, 'Sapatilhas de Corrida', 250.00, 1, '/products/placeholder.jpg');
+(8, 4, 1, 250.00);
 
 -- 6. Inserir Favoritos
 INSERT INTO `favoritos` (`user_id`, `produto_id`) VALUES
@@ -443,11 +450,13 @@ INSERT INTO `favoritos` (`user_id`, `produto_id`) VALUES
 (5, 2),
 (5, 8);
 
--- 7. Inserir Moradas
-INSERT INTO `moradas` (`user_id`, `nome_morada`, `rua`, `numero`, `complemento`, `conselho`, `distrito`, `codigo_postal`) VALUES
-(2, 'Casa', 'Rua das Flores', '123', 'Apto 4B', 'Lisboa', 'Lisboa', '1000-001'),
-(3, 'Trabalho', 'Avenida da Liberdade', '456', 'Piso 2', 'Lisboa', 'Lisboa', '1250-142'),
-(5, 'Casa de Praia', 'Rua da Praia', '789', NULL, 'Cascais', 'Lisboa', '2750-310');
+-- 7. Inserir Favoritos
+INSERT IGNORE INTO `favoritos` (`user_id`, `produto_id`) VALUES
+(2, 1),
+(2, 3),
+(3, 5),
+(5, 2),
+(5, 8);
 
 COMMIT;
 
